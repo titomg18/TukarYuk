@@ -54,13 +54,12 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'location' => null, // Default null, bisa diupdate nanti
         ]);
 
-        return redirect()
-            ->route('login')
-            ->with('status', 'Registrasi berhasil! Silakan login.');
-
-        return redirect()->route('dashboard');
+        // Redirect ke login dengan pesan sukses
+        return redirect()->route('login')
+            ->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
     }
 
     // ==================

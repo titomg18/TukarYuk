@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('location')->nullable();
+            $table->string('location')->nullable(); // Tambah kolom location
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

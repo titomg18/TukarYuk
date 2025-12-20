@@ -95,17 +95,7 @@
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
             .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .stats-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -413,223 +403,68 @@
                 </div>
             </div>
             
-            <!-- Stats Cards -->
-            <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-4 rounded-xl card-shadow">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-lg bg-green-100 mr-4">
-                            <i class="fas fa-box text-green-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Total Barang</p>
-                            <h3 class="text-xl font-bold text-gray-800">{{ $stats['total_items'] ?? 0 }}</h3>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-4 rounded-xl card-shadow">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-lg bg-blue-100 mr-4">
-                            <i class="fas fa-exchange-alt text-blue-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Penukaran Aktif</p>
-                            <h3 class="text-xl font-bold text-gray-800">{{ $stats['active_swaps'] ?? 0 }}</h3>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-4 rounded-xl card-shadow">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-lg bg-yellow-100 mr-4">
-                            <i class="fas fa-check-circle text-yellow-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Selesai</p>
-                            <h3 class="text-xl font-bold text-gray-800">{{ $stats['completed_swaps'] ?? 0 }}</h3>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white p-4 rounded-xl card-shadow">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-lg bg-purple-100 mr-4">
-                            <i class="fas fa-star text-purple-600"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Tersedia</p>
-                            <h3 class="text-xl font-bold text-gray-800">{{ $stats['available_items'] ?? 0 }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Main Content Grid -->
-            <div class="content-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Recent Items -->
-                <div class="bg-white rounded-xl card-shadow p-5">
-                    <div class="flex justify-between items-center mb-5">
-                        <h2 class="text-lg font-bold text-gray-800">Barang Terbaru Anda</h2>
-                        <a href="#" class="text-green-600 hover:text-green-800 font-medium text-sm">Lihat Semua</a>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        @forelse ($items as $item)
-                        <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
-                            <div class="w-14 h-14 rounded-lg overflow-hidden mr-4 flex-shrink-0">
-                                @if($item->images->first())
-                                    <img src="{{ asset('storage/' . $item->images->first()->image_path) }}" 
-                                         alt="{{ $item->title }}"
-                                         class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full bg-green-100 flex items-center justify-center">
-                                        <i class="fas fa-box text-green-600 text-xl"></i>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-medium text-gray-800 truncate">{{ $item->title }}</h3>
-                                <div class="flex items-center mt-1 flex-wrap">
-                                    <span class="px-2 py-1 text-xs rounded-full mr-2 mb-1
-                                        @if($item->status === 'available') status-available
-                                        @elseif($item->status === 'in_swap') status-in_swap
-                                        @else status-completed
-                                        @endif">
-                                        {{ ucfirst(str_replace('_', ' ', $item->status)) }}
-                                    </span>
-                                    <span class="text-xs text-gray-500 capitalize">{{ $item->condition }}</span>
-                                </div>
-                            </div>
-                            <div class="text-right ml-3">
-                                <p class="text-xs text-gray-500">{{ $item->created_at->diffForHumans() }}</p>
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-center py-8">
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <i class="fas fa-box-open text-gray-400 text-2xl"></i>
-                            </div>
-                            <p class="text-gray-500 mb-3">Belum ada barang</p>
-                            <button onclick="openAddItemModal()" class="text-green-600 hover:text-green-800 font-medium">
-                                <i class="fas fa-plus mr-1"></i> Tambah Barang Pertama
-                            </button>
-                        </div>
-                        @endforelse
-                    </div>
-                    
-                    <button onclick="openAddItemModal()" class="w-full mt-5 flex items-center justify-center p-3 border border-dashed border-gray-300 rounded-lg text-gray-500 hover:text-green-600 hover:border-green-300 transition">
-                        <i class="fas fa-plus mr-2"></i>
-                        <span>Tambah Barang Baru</span>
+            <!-- User's Items in Card Grid -->
+            <div class="bg-white rounded-xl card-shadow p-5 mb-6">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="text-lg font-bold text-gray-800">Barang Saya</h2>
+                    <button onclick="openAddItemModal()" class="text-green-600 hover:text-green-800 font-medium text-sm">
+                        <i class="fas fa-plus mr-1"></i>Tambah Barang
                     </button>
                 </div>
                 
-                <!-- Recent Activity -->
-                <div class="bg-white rounded-xl card-shadow p-5">
-                    <div class="flex justify-between items-center mb-5">
-                        <h2 class="text-lg font-bold text-gray-800">Aktivitas Terkini</h2>
-                        <a href="#" class="text-green-600 hover:text-green-800 font-medium text-sm">Lihat Riwayat</a>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
-                                <i class="fas fa-exchange-alt text-green-600 text-sm"></i>
-                            </div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-medium text-gray-800 text-sm">Penukaran baru</h3>
-                                <p class="text-sm text-gray-600 truncate">Anda mendapat tawaran untuk Headphone Bluetooth</p>
-                                <p class="text-xs text-gray-500 mt-1">2 jam yang lalu</p>
-                            </div>
+                @if(isset($items) && count($items) > 0)
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    @foreach ($items as $item)
+                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
+                        <div class="w-full h-48 overflow-hidden bg-gray-100">
+                            @if($item->images && $item->images->first())
+                                <img src="{{ asset('storage/' . $item->images->first()->image_path) }}" 
+                                     alt="{{ $item->title }}"
+                                     class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400 text-3xl"></i>
+                                </div>
+                            @endif
                         </div>
-                        
-                        <div class="flex items-start">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
-                                <i class="fas fa-comment text-blue-600 text-sm"></i>
+                        <div class="p-4">
+                            <h3 class="font-medium text-gray-800 mb-2 truncate">{{ $item->title }}</h3>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm text-gray-500 capitalize">{{ $item->condition }}</span>
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    @if($item->status === 'available') status-available
+                                    @elseif($item->status === 'in_swap') status-in_swap
+                                    @else status-completed
+                                    @endif">
+                                    {{ ucfirst(str_replace('_', ' ', $item->status)) }}
+                                </span>
                             </div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-medium text-gray-800 text-sm">Pesan baru</h3>
-                                <p class="text-sm text-gray-600 truncate">Rudi mengirim pesan tentang Koleksi Novel Lengkap</p>
-                                <p class="text-xs text-gray-500 mt-1">5 jam yang lalu</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start">
-                            <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
-                                <i class="fas fa-star text-yellow-600 text-sm"></i>
-                            </div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-medium text-gray-800 text-sm">Rating baru</h3>
-                                <p class="text-sm text-gray-600 truncate">Sinta memberi rating 5 bintang untuk penukaran Jaket Kulit</p>
-                                <p class="text-xs text-gray-500 mt-1">1 hari yang lalu</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start">
-                            <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center mr-4 mt-1 flex-shrink-0">
-                                <i class="fas fa-check-circle text-purple-600 text-sm"></i>
-                            </div>
-                            <div class="flex-grow min-w-0">
-                                <h3 class="font-medium text-gray-800 text-sm">Penukaran selesai</h3>
-                                <p class="text-sm text-gray-600 truncate">Penukaran Sepatu Sneakers telah berhasil diselesaikan</p>
-                                <p class="text-xs text-gray-500 mt-1">3 hari yang lalu</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-500">{{ $item->created_at->diffForHumans() }}</span>
+                                <div class="flex space-x-2">
+                                    <button class="text-blue-600 hover:text-blue-800">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Quick Tips -->
-                    <div class="mt-6 pt-5 border-t border-gray-200">
-                        <h3 class="font-medium text-gray-800 mb-3">Tips TukarYuk</h3>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <p class="text-sm text-green-800">
-                                <i class="fas fa-lightbulb text-green-600 mr-2"></i>
-                                Unggah foto barang dari berbagai angle untuk meningkatkan minat penukar.
-                            </p>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
-            </div>
-            
-            <!-- Recommended Items -->
-            <div class="mt-6 bg-white rounded-xl card-shadow p-5">
-                <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-lg font-bold text-gray-800">Rekomendasi Untuk Anda</h2>
-                    <a href="#" class="text-green-600 hover:text-green-800 font-medium text-sm">Lihat Semua</a>
+                @else
+                <div class="text-center py-8">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-box-open text-gray-400 text-2xl"></i>
+                    </div>
+                    <p class="text-gray-500 mb-3">Belum ada barang</p>
+                    <button onclick="openAddItemModal()" class="text-green-600 hover:text-green-800 font-medium">
+                        <i class="fas fa-plus mr-1"></i> Tambah Barang Pertama
+                    </button>
                 </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="w-full h-40 bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-bicycle text-green-600 text-4xl"></i>
-                        </div>
-                        <h3 class="font-medium text-gray-800 mb-2">Sepeda Gunung</h3>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500">Tukar • Bekas</span>
-                            <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">Jakarta</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="w-full h-40 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-laptop text-blue-600 text-4xl"></i>
-                        </div>
-                        <h3 class="font-medium text-gray-800 mb-2">Laptop 14"</h3>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500">Tukar • Bekas</span>
-                            <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">Bandung</span>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                        <div class="w-full h-40 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center mb-4">
-                            <i class="fas fa-camera text-purple-600 text-4xl"></i>
-                        </div>
-                        <h3 class="font-medium text-gray-800 mb-2">Kamera DSLR</h3>
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-gray-500">Tukar • Bekas</span>
-                            <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">Surabaya</span>
-                        </div>
-                    </div>
-                </div>
+                @endif
             </div>
             
             <!-- Footer -->
@@ -890,6 +725,9 @@
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
             submitBtn.disabled = true;
+            
+            // Submit form
+            // The form will be submitted normally, and the page will refresh with the new item
         });
         
         // Handle window resize

@@ -36,7 +36,7 @@ Route::middleware('auth')->group(function () {
     // Swap routes
     Route::prefix('swaps')->name('swaps.')->group(function () {
         Route::get('/', [SwapController::class, 'index'])->name('index');
-        Route::get('/create/{item}', [SwapController::class, 'create'])->name('create');
+        // HAPUS ROUTE INI: Route::get('/create/{item}', [SwapController::class, 'create'])->name('create');
         Route::post('/', [SwapController::class, 'store'])->name('store');
         Route::get('/{swap}', [SwapController::class, 'show'])->name('show');
         
@@ -45,6 +45,33 @@ Route::middleware('auth')->group(function () {
         Route::post('/{swap}/reject', [SwapController::class, 'reject'])->name('reject');
         Route::post('/{swap}/cancel', [SwapController::class, 'cancel'])->name('cancel');
         Route::post('/{swap}/complete', [SwapController::class, 'complete'])->name('complete');
+    });
+    
+    // API untuk mengambil barang milik user (untuk modal swap)
+    Route::get('/api/user-items', function (\Illuminate\Http\Request $request) {
+        $exclude = $request->query('exclude');
+        
+        $items = \App\Models\Item::where('user_id', auth()->id())
+            ->where('status', 'available')
+            ->when($exclude, function ($query, $exclude) {
+                return $query->where('id', '!=', $exclude);
+            })
+            ->with('images')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'condition' => $item->condition,
+                    'category' => $item->category,
+                    'image_url' => $item->images->first() 
+                        ? asset('storage/' . $item->images->first()->image_path) 
+                        : asset('images/default-item.png'),
+                    'has_image' => $item->images->first() ? true : false
+                ];
+            });
+        
+        return response()->json($items);
     });
     
     // Logout

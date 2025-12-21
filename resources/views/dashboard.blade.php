@@ -537,10 +537,16 @@
                                     <i class="fas fa-box mr-2"></i>Barang Anda
                                 </a>
                             @else
-                                <a href="{{ route('swaps.create', $item->id) }}" 
-                                   class="block w-full py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition font-medium shadow-md hover:shadow-lg">
+                                <button onclick="openSwapModal(
+                                    {{ $item->id }}, 
+                                    '{{ addslashes($item->title) }}', 
+                                    {{ $item->user_id }}, 
+                                    '{{ addslashes($item->user->name) }}', 
+                                    '{{ $item->images->first() ? asset('storage/' . $item->images->first()->image_path) : '' }}'
+                                )" 
+                                   class="w-full py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition font-medium shadow-md hover:shadow-lg">
                                     <i class="fas fa-exchange-alt mr-2"></i>Ajukan Tukar
-                                </a>
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -718,6 +724,84 @@
         </div>
     </div>
     
+    <!-- Modal Ajukan Tukar -->
+    <div id="swapModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-white w-full max-w-lg rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Ajukan Penukaran Barang</h2>
+                        <p class="text-sm text-gray-600 mt-1">Tawarkan barang Anda untuk ditukar</p>
+                    </div>
+                    <button onclick="closeSwapModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Form -->
+            <div class="p-6">
+                <!-- Info barang yang ingin ditukar -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                    <h3 class="font-medium text-gray-800 mb-2">Barang yang ingin Anda tukar:</h3>
+                    <div class="flex items-center">
+                        <img id="swapItemImage" src="" alt="" class="w-16 h-16 object-cover rounded mr-3 hidden">
+                        <div id="swapItemImagePlaceholder" class="w-16 h-16 bg-gray-200 rounded mr-3 flex items-center justify-center">
+                            <i class="fas fa-box text-gray-400 text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 id="swapItemTitle" class="font-bold text-gray-800"></h4>
+                            <p id="swapItemOwner" class="text-sm text-gray-600"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{{ route('swaps.store') }}" id="swapForm">
+                    @csrf
+                    <input type="hidden" name="item_id" id="swapItemId">
+                    <input type="hidden" name="type" value="swap">
+                    
+                    <!-- Pilih barang yang akan ditawarkan -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-3">
+                            <i class="fas fa-box text-green-500 mr-2"></i>Pilih barang Anda yang akan ditukarkan:
+                        </label>
+                        
+                        <div id="userItemsContainer">
+                            <!-- Data akan di-load via JavaScript -->
+                            <div class="text-center p-4">
+                                <i class="fas fa-spinner fa-spin text-gray-400 text-xl"></i>
+                                <p class="text-gray-500 mt-2">Memuat data barang...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pesan (opsional) -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-comment text-green-500 mr-2"></i>Pesan (opsional)
+                        </label>
+                        <textarea name="message" rows="3" placeholder="Sampaikan alasan atau detail penukaran..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <!-- Action buttons -->
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeSwapModal()"
+                            class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                        <button type="submit" id="swapSubmitBtn"
+                                class="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 transition">
+                            <i class="fas fa-paper-plane mr-2"></i>Ajukan Penukaran
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // Mobile menu functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -803,7 +887,7 @@
             fileInput.dispatchEvent(event);
         }
         
-        // Modal functions
+        // Modal functions untuk tambah barang
         function openAddItemModal() {
             const modal = document.getElementById('addItemModal');
             if (modal) {
@@ -835,7 +919,7 @@
             });
         }
         
-        // Form submission handling
+        // Form submission handling untuk tambah barang
         const form = document.getElementById('addItemForm');
         if (form) {
             form.addEventListener('submit', function(e) {
@@ -854,6 +938,154 @@
                 }
             });
         }
+        
+        // Swap Modal Functions
+        let currentSwapItemId = null;
+        
+        function openSwapModal(itemId, itemTitle, ownerId, ownerName, itemImage) {
+            currentSwapItemId = itemId;
+            
+            // Set data barang yang ingin ditukar
+            document.getElementById('swapItemId').value = itemId;
+            document.getElementById('swapItemTitle').textContent = itemTitle;
+            document.getElementById('swapItemOwner').textContent = 'Milik: ' + ownerName;
+            
+            // Set gambar atau tampilkan placeholder
+            const imgElement = document.getElementById('swapItemImage');
+            const imgPlaceholder = document.getElementById('swapItemImagePlaceholder');
+            if (itemImage && itemImage !== '') {
+                imgElement.src = itemImage;
+                imgElement.classList.remove('hidden');
+                imgPlaceholder.classList.add('hidden');
+            } else {
+                imgElement.classList.add('hidden');
+                imgPlaceholder.classList.remove('hidden');
+            }
+            
+            // Tampilkan modal
+            document.getElementById('swapModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Load barang milik user
+            loadUserItems(itemId);
+        }
+        
+        function closeSwapModal() {
+            document.getElementById('swapModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            
+            // Reset form
+            document.getElementById('swapForm').reset();
+            document.getElementById('swapItemId').value = '';
+            
+            // Reset container
+            document.getElementById('userItemsContainer').innerHTML = `
+                <div class="text-center p-4">
+                    <i class="fas fa-spinner fa-spin text-gray-400 text-xl"></i>
+                    <p class="text-gray-500 mt-2">Memuat data barang...</p>
+                </div>
+            `;
+        }
+        
+        async function loadUserItems(excludeItemId) {
+            const container = document.getElementById('userItemsContainer');
+            const submitBtn = document.getElementById('swapSubmitBtn');
+            
+            try {
+                const response = await fetch(`/api/user-items?exclude=${excludeItemId}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const items = await response.json();
+                
+                if (items.length > 0) {
+                    let html = '<div class="space-y-3 max-h-60 overflow-y-auto pr-2">';
+                    items.forEach((item, index) => {
+                        html += `
+                            <div class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                                <input type="radio" name="offered_item_id" value="${item.id}" 
+                                       id="user_item_${index}" class="mr-3" required>
+                                <label for="user_item_${index}" class="flex-1 cursor-pointer">
+                                    <div class="flex items-center">
+                                        ${item.has_image ? 
+                                            `<img src="${item.image_url}" alt="${item.title}" class="w-12 h-12 object-cover rounded mr-3">` :
+                                            `<div class="w-12 h-12 bg-gray-200 rounded mr-3 flex items-center justify-center">
+                                                <i class="fas fa-box text-gray-400"></i>
+                                            </div>`
+                                        }
+                                        <div>
+                                            <h4 class="font-medium text-gray-800">${item.title}</h4>
+                                            <p class="text-xs text-gray-500">${item.condition} • ${item.category}</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                    
+                    // Enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Ajukan Penukaran';
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
+                            <i class="fas fa-box-open text-gray-400 text-3xl mb-3"></i>
+                            <p class="text-gray-500 mb-3">Anda belum memiliki barang yang bisa ditawarkan</p>
+                            <a href="{{ route('barang.index') }}" class="text-green-600 hover:text-green-800 font-medium">
+                                <i class="fas fa-plus mr-1"></i> Tambah Barang
+                            </a>
+                        </div>
+                    `;
+                    
+                    // Disable submit button jika tidak ada barang
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Tidak ada barang';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = `
+                    <div class="text-center p-4 text-red-500">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Gagal memuat data barang. Silakan coba lagi.
+                    </div>
+                `;
+            }
+        }
+        
+        // Form submission handling untuk swap
+        document.addEventListener('DOMContentLoaded', function() {
+            const swapForm = document.getElementById('swapForm');
+            if (swapForm) {
+                swapForm.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
+                    submitBtn.disabled = true;
+                    
+                    // Lanjutkan submit form
+                });
+            }
+            
+            // Close modal when clicking outside untuk swap modal
+            const swapModal = document.getElementById('swapModal');
+            if (swapModal) {
+                swapModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeSwapModal();
+                    }
+                });
+            }
+        });
         
         // Handle window resize
         window.addEventListener('resize', function() {

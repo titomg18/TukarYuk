@@ -11,7 +11,8 @@ class Swap extends Model
 
     protected $fillable = [
         'item_id',
-        'offered_item_id', // Hapus requested_item_id
+        'offered_item_id',
+        'offered_item_name', // Tambahkan untuk support barang custom
         'requester_id',
         'owner_id',
         'type',
@@ -28,15 +29,19 @@ class Swap extends Model
         return $this->belongsTo(Item::class, 'item_id');
     }
 
-    // Hapus method ini:
-    // public function requestedItem()
-    // {
-    //     return $this->belongsTo(Item::class, 'requested_item_id');
-    // }
-
     public function offeredItem()
     {
         return $this->belongsTo(Item::class, 'offered_item_id');
+    }
+
+    public function requester()
+    {
+        return $this->belongsTo(User::class, 'requester_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     // ... method lainnya

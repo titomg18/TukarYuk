@@ -111,6 +111,7 @@
             }
         }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="gradient-bg min-h-screen">
     <!-- Mobile Menu Overlay -->
@@ -497,7 +498,7 @@
                             
                             <!-- User Profile -->
                             <div class="absolute top-3 right-3">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition" title="{{ $item->user->name }}">
+                                <div class="w-8 h-8 rounded-full avatar-gradient flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition" title="{{ $item->user->name }}">
                                     {{ substr($item->user->name, 0, 1) }}
                                 </div>
                             </div>
@@ -746,7 +747,7 @@
                 <div class="mb-6 p-4 bg-blue-50 rounded-lg">
                     <h3 class="font-medium text-gray-800 mb-2">Barang yang ingin Anda tukar:</h3>
                     <div class="flex items-center">
-                        <img id="swapItemImage" src="" alt="" class="w-16 h-16 object-cover rounded mr-3 hidden">
+                        <img id="swapItemImage" src="/placeholder.svg" alt="" class="w-16 h-16 object-cover rounded mr-3 hidden">
                         <div id="swapItemImagePlaceholder" class="w-16 h-16 bg-gray-200 rounded mr-3 flex items-center justify-center">
                             <i class="fas fa-box text-gray-400 text-xl"></i>
                         </div>
@@ -757,7 +758,7 @@
                     </div>
                 </div>
                 
-                <form method="POST" action="{{ route('swaps.store') }}" id="swapForm">
+                <form id="swapForm">
                     @csrf
                     <input type="hidden" name="item_id" id="swapItemId">
                     <input type="hidden" name="type" value="swap">
@@ -775,6 +776,16 @@
                                 <p class="text-gray-500 mt-2">Memuat data barang...</p>
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Input field untuk barang custom ketika pilih "Lain-lain" -->
+                    <div id="otherItemInputContainer" class="mb-6 hidden">
+                        <label class="block text-gray-700 font-medium mb-3">
+                            <i class="fas fa-keyboard text-green-500 mr-2"></i>Nama barang Anda:
+                        </label>
+                        <input type="text" name="other_item_name" id="otherItemName" 
+                               placeholder="Contoh: Jam tangan, Sepatu, Buku, dll."
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                     </div>
                     
                     <!-- Pesan (opsional) -->
@@ -796,6 +807,11 @@
                                 class="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg hover:from-green-600 hover:to-green-700 transition">
                             <i class="fas fa-paper-plane mr-2"></i>Ajukan Penukaran
                         </button>
+                    </div>
+                    
+                    <!-- Tambah error message container -->
+                    <div id="swapFormError" class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-red-600 text-sm"><i class="fas fa-exclamation-circle mr-2"></i><span id="swapFormErrorMessage"></span></p>
                     </div>
                 </form>
             </div>
@@ -985,28 +1001,55 @@
                     <p class="text-gray-500 mt-2">Memuat data barang...</p>
                 </div>
             `;
+            // Hide error message
+            document.getElementById('swapFormError').classList.add('hidden');
         }
         
+        // Perbaiki bagian loadUserItems function untuk error handling yang lebih baik
         async function loadUserItems(excludeItemId) {
             const container = document.getElementById('userItemsContainer');
             const submitBtn = document.getElementById('swapSubmitBtn');
+            const otherItemInputContainer = document.getElementById('otherItemInputContainer');
+            const otherItemNameInput = document.getElementById('otherItemName');
+            const swapFormError = document.getElementById('swapFormError');
+            const swapFormErrorMessage = document.getElementById('swapFormErrorMessage');
+            
+            // Hide other item input initially
+            if (otherItemInputContainer) otherItemInputContainer.classList.add('hidden');
+            if (otherItemNameInput) otherItemNameInput.value = '';
+            if (swapFormError) swapFormError.classList.add('hidden');
+            
+            // Show loading indicator
+            container.innerHTML = `
+                <div class="text-center p-4">
+                    <i class="fas fa-spinner fa-spin text-gray-400 text-xl"></i>
+                    <p class="text-gray-500 mt-2">Memuat data barang...</p>
+                </div>
+            `;
             
             try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                if (!csrfToken) {
+                    throw new Error('CSRF token tidak ditemukan');
+                }
+                
                 const response = await fetch(`/api/user-items?exclude=${excludeItemId}`, {
+                    method: 'GET',
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': csrfToken.getAttribute('content')
                     }
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    const errorData = await response.json().catch(() => ({})); // Try to parse JSON error
+                    throw new Error(`HTTP Error: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
                 }
                 
                 const items = await response.json();
                 
-                if (items.length > 0) {
+                if (items && items.length > 0) {
                     let html = '<div class="space-y-3 max-h-60 overflow-y-auto pr-2">';
                     items.forEach((item, index) => {
                         html += `
@@ -1030,6 +1073,26 @@
                             </div>
                         `;
                     });
+                    
+                    // Add the 'Other' option
+                    html += `
+                        <div class="flex items-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                            <input type="radio" name="offered_item_id" value="other" 
+                                   id="user_item_other" class="mr-3" required>
+                            <label for="user_item_other" class="flex-1 cursor-pointer">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-gray-200 rounded mr-3 flex items-center justify-center">
+                                        <i class="fas fa-plus text-gray-400"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Lain-lain</h4>
+                                        <p class="text-xs text-gray-500">Barang yang tidak ada di atas</p>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    `;
+                    
                     html += '</div>';
                     container.innerHTML = html;
                     
@@ -1037,6 +1100,7 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Ajukan Penukaran';
                 } else {
+                    // No items found
                     container.innerHTML = `
                         <div class="text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
                             <i class="fas fa-box-open text-gray-400 text-3xl mb-3"></i>
@@ -1047,32 +1111,146 @@
                         </div>
                     `;
                     
-                    // Disable submit button jika tidak ada barang
+                    // Disable submit button if no items
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Tidak ada barang';
                 }
+                
+                // Add event listener for radio buttons to show/hide other item input
+                const radioButtons = container.querySelectorAll('input[name="offered_item_id"]');
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.value === 'other') {
+                            if (otherItemInputContainer) otherItemInputContainer.classList.remove('hidden');
+                            if (otherItemNameInput) otherItemNameInput.required = true;
+                        } else {
+                            if (otherItemInputContainer) otherItemInputContainer.classList.add('hidden');
+                            if (otherItemNameInput) otherItemNameInput.required = false;
+                            if (otherItemNameInput) otherItemNameInput.value = ''; // Clear input when hiding
+                        }
+                    });
+                });
+                
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error loading items:', error);
+                if (swapFormError && swapFormErrorMessage) {
+                    swapFormErrorMessage.textContent = `Gagal memuat data barang: ${error.message}`;
+                    swapFormError.classList.remove('hidden');
+                }
+                
                 container.innerHTML = `
-                    <div class="text-center p-4 text-red-500">
-                        <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Gagal memuat data barang. Silakan coba lagi.
+                    <div class="text-center p-4 bg-red-50 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                        <p class="text-red-600">Gagal memuat data barang.</p>
                     </div>
                 `;
+                
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Terjadi kesalahan';
             }
         }
         
-        // Form submission handling untuk swap
         document.addEventListener('DOMContentLoaded', function() {
             const swapForm = document.getElementById('swapForm');
+            const swapFormError = document.getElementById('swapFormError');
+            const swapFormErrorMessage = document.getElementById('swapFormErrorMessage');
+
             if (swapForm) {
-                swapForm.addEventListener('submit', function(e) {
+                swapForm.addEventListener('submit', async function(e) {
+                    e.preventDefault(); // Prevent default form submission
+
+                    // Hide previous errors
+                    if (swapFormError) swapFormError.classList.add('hidden');
+
+                    // Validation
+                    const selectedItem = document.querySelector('input[name="offered_item_id"]:checked');
+                    if (!selectedItem) {
+                        if (swapFormError && swapFormErrorMessage) {
+                            swapFormErrorMessage.textContent = 'Silakan pilih barang yang akan Anda tawarkan terlebih dahulu!';
+                            swapFormError.classList.remove('hidden');
+                        }
+                        alert('Silakan pilih barang yang akan Anda tawarkan terlebih dahulu!'); // Fallback alert
+                        return false;
+                    }
+
+                    if (selectedItem.value === 'other') {
+                        const otherItemNameInput = document.getElementById('otherItemName');
+                        const otherItemName = otherItemNameInput.value.trim();
+                        if (!otherItemName) {
+                             if (swapFormError && swapFormErrorMessage) {
+                                swapFormErrorMessage.textContent = 'Silakan masukkan nama barang yang akan Anda tawarkan!';
+                                swapFormError.classList.remove('hidden');
+                            }
+                            alert('Silakan masukkan nama barang yang akan Anda tawarkan!'); // Fallback alert
+                            return false;
+                        }
+                    }
+                    
+                    // Prepare form data
+                    const formData = new FormData(this);
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalText = submitBtn.innerHTML;
+                    const originalDisabled = submitBtn.disabled; // Store original disabled state
+                    
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
                     submitBtn.disabled = true;
                     
-                    // Lanjutkan submit form
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const response = await fetch('{{ route("swaps.store") }}', {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            // Success
+                            // Display success message before closing modal
+                            alert('Penukaran berhasil diajukan!');
+                            closeSwapModal(); // Close modal
+
+                            // Reload page or list swap after a short delay to ensure alert is dismissed
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 500); // Adjust delay as needed
+                        } else {
+                            // Handle validation errors or other server errors
+                            if (swapFormError && swapFormErrorMessage) {
+                                if (result.errors) {
+                                    // Display specific validation errors
+                                    let errorMessages = Object.values(result.errors).flat().join('<br>');
+                                    swapFormErrorMessage.innerHTML = errorMessages;
+                                } else if (result.message) {
+                                    // Display a general error message
+                                    swapFormErrorMessage.textContent = result.message;
+                                } else {
+                                    swapFormErrorMessage.textContent = 'Terjadi kesalahan saat mengajukan penukaran. Silakan coba lagi.';
+                                }
+                                swapFormError.classList.remove('hidden');
+                            }
+                            console.error('Submission error:', result);
+                            // Fallback alert if error div is not visible or for immediate feedback
+                            if (swapFormError.classList.contains('hidden')) {
+                                alert('Gagal mengajukan penukaran. Silakan periksa pesan error di bawah atau coba lagi.');
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Network or unexpected error:', error);
+                        if (swapFormError && swapFormErrorMessage) {
+                            swapFormErrorMessage.textContent = 'Terjadi kesalahan jaringan atau tak terduga. Silakan coba lagi.';
+                            swapFormError.classList.remove('hidden');
+                        }
+                         alert('Terjadi kesalahan jaringan atau tak terduga. Silakan coba lagi.'); // Fallback alert
+                    } finally {
+                        // Restore button state
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = originalDisabled;
+                    }
                 });
             }
             
@@ -1084,6 +1262,23 @@
                         closeSwapModal();
                     }
                 });
+            }
+        });
+
+        document.addEventListener('change', function(e) {
+            if (e.target.name === 'offered_item_id') {
+                const otherItemInputContainer = document.getElementById('otherItemInputContainer');
+                const otherItemName = document.getElementById('otherItemName');
+                
+                if (e.target.value === 'other') {
+                    otherItemInputContainer.classList.remove('hidden');
+                    if(otherItemName) otherItemName.focus();
+                    if(otherItemName) otherItemName.required = true;
+                } else {
+                    otherItemInputContainer.classList.add('hidden');
+                    if(otherItemName) otherItemName.required = false;
+                    if(otherItemName) otherItemName.value = '';
+                }
             }
         });
         

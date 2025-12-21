@@ -49,29 +49,35 @@ Route::middleware('auth')->group(function () {
     
     // API untuk mengambil barang milik user (untuk modal swap)
     Route::get('/api/user-items', function (\Illuminate\Http\Request $request) {
-        $exclude = $request->query('exclude');
-        
-        $items = \App\Models\Item::where('user_id', auth()->id())
-            ->where('status', 'available')
-            ->when($exclude, function ($query, $exclude) {
-                return $query->where('id', '!=', $exclude);
-            })
-            ->with('images')
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'title' => $item->title,
-                    'condition' => $item->condition,
-                    'category' => $item->category,
-                    'image_url' => $item->images->first() 
-                        ? asset('storage/' . $item->images->first()->image_path) 
-                        : asset('images/default-item.png'),
-                    'has_image' => $item->images->first() ? true : false
-                ];
-            });
-        
-        return response()->json($items);
+        try {
+            $exclude = $request->query('exclude');
+            
+            $items = \App\Models\Item::where('user_id', auth()->id())
+                ->where('status', 'available')
+                ->when($exclude, function ($query, $exclude) {
+                    return $query->where('id', '!=', $exclude);
+                })
+                ->with('images')
+                ->get()
+                ->map(function ($item) {
+                    $image = $item->images->first();
+                    return [
+                        'id' => $item->id,
+                        'title' => $item->title,
+                        'condition' => $item->condition,
+                        'category' => $item->category,
+                        'image_url' => $image 
+                            ? asset('storage/' . $image->image_path) 
+                            : asset('images/default-item.png'),
+                        'has_image' => $image ? true : false
+                    ];
+                });
+            
+            return response()->json($items, 200);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching user items: ' . $e->getMessage());
+            return response()->json(['error' => 'Gagal memuat data barang'], 500);
+        }
     });
     
     // Logout

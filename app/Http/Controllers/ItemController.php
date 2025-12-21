@@ -4,18 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\ItemImage;
+use App\Models\Swap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
+    // ====================
+    // DASHBOARD (Marketplace)
+    // ====================
     public function dashboard()
     {
-        $items = Item::where('user_id', auth()->id())
-            ->with('images')
+        // Ambil semua barang yang available (bisa dilihat semua user)
+        $items = Item::where('status', 'available')
+            ->with(['images', 'user'])
             ->latest()
-            ->take(5)
-            ->get();
+            ->paginate(12);
 
         $stats = [
             'total_items' => Item::where('user_id', auth()->id())->count(),
@@ -24,9 +28,30 @@ class ItemController extends Controller
             'available_items' => Item::where('user_id', auth()->id())->where('status', 'available')->count(),
         ];
 
-        return view('dashboard', compact('items', 'stats'));
+        // Untuk notifikasi
+        $incomingSwapsCount = Swap::where('owner_id', auth()->id())
+            ->where('status', 'pending')
+            ->count();
+
+        return view('dashboard', compact('items', 'stats', 'incomingSwapsCount'));
     }
 
+    // ====================
+    // BARANG SAYA (My Items)
+    // ====================
+    public function index()
+    {
+        $items = Item::where('user_id', auth()->id())
+            ->with('images')
+            ->latest()
+            ->paginate(12);
+
+        return view('barang', compact('items'));
+    }
+
+    // ====================
+    // TAMBAH BARANG
+    // ====================
     public function store(Request $request)
     {
         $request->validate([
@@ -62,6 +87,74 @@ class ItemController extends Controller
             }
         }
 
-        return redirect()->route('dashboard')->with('success', 'Barang berhasil ditambahkan!');
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil ditambahkan!');
+    }
+
+    // ====================
+    // DETAIL BARANG
+    // ====================
+    public function show(Item $item)
+    {
+        $item->load(['images', 'user']);
+        return view('items.show', compact('item'));
+    }
+
+    // ====================
+    // EDIT BARANG
+    // ====================
+    public function edit(Item $item)
+    {
+        // Authorization: cek apakah user pemilik barang
+        if ($item->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('items.edit', compact('item'));
+    }
+
+    // ====================
+    // UPDATE BARANG
+    // ====================
+    public function update(Request $request, Item $item)
+    {
+        // Authorization
+        if ($item->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|string',
+            'condition' => 'required|in:baru,bekas_layak',
+            'description' => 'nullable|string',
+            'type' => 'required|in:swap,free',
+            'status' => 'required|in:available,in_swap,completed',
+            'location' => 'nullable|string',
+        ]);
+
+        $item->update($request->all());
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui!');
+    }
+
+    // ====================
+    // HAPUS BARANG
+    // ====================
+    public function destroy(Item $item)
+    {
+        // Authorization
+        if ($item->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Hapus gambar terlebih dahulu
+        foreach ($item->images as $image) {
+            Storage::disk('public')->delete($image->image_path);
+            $image->delete();
+        }
+
+        $item->delete();
+
+        return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
     }
 }

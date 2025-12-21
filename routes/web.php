@@ -20,22 +20,38 @@ Route::middleware('guest')->group(function () {
 
 // Routes yang membutuhkan authentication
 Route::middleware('auth')->group(function () {
+    // Dashboard - Marketplace (semua barang)
     Route::get('/dashboard', [ItemController::class, 'dashboard'])->name('dashboard');
-    Route::post('/items', [ItemController::class, 'store'])->name('items.store');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-});
-
-Route::middleware(['auth'])->group(function () {
-    // ... route lainnya ...
     
-    Route::prefix('swap')->name('swap.')->group(function () {
+    // Barang Saya - CRUD
+    Route::get('/barang', [ItemController::class, 'index'])->name('barang.index');
+    Route::post('/barang', [ItemController::class, 'store'])->name('barang.store');
+    Route::get('/barang/{item}/edit', [ItemController::class, 'edit'])->name('barang.edit');
+    Route::put('/barang/{item}', [ItemController::class, 'update'])->name('barang.update');
+    Route::delete('/barang/{item}', [ItemController::class, 'destroy'])->name('barang.destroy');
+    
+    // Detail barang (public)
+    Route::get('/items/{item}', [ItemController::class, 'show'])->name('items.show');
+    
+    // Swap routes
+    Route::prefix('swaps')->name('swaps.')->group(function () {
         Route::get('/', [SwapController::class, 'index'])->name('index');
-        Route::get('/create', [SwapController::class, 'create'])->name('create');
+        Route::get('/create/{item}', [SwapController::class, 'create'])->name('create');
         Route::post('/', [SwapController::class, 'store'])->name('store');
-        Route::get('/{id}', [SwapController::class, 'show'])->name('show');
-        Route::post('/{id}/accept', [SwapController::class, 'accept'])->name('accept');
-        Route::post('/{id}/reject', [SwapController::class, 'reject'])->name('reject');
-        Route::post('/{id}/cancel', [SwapController::class, 'cancel'])->name('cancel');
-        Route::post('/{id}/complete', [SwapController::class, 'complete'])->name('complete');
+        Route::get('/{swap}', [SwapController::class, 'show'])->name('show');
+        
+        // Actions - menggunakan POST untuk sekarang
+        Route::post('/{swap}/accept', [SwapController::class, 'accept'])->name('accept');
+        Route::post('/{swap}/reject', [SwapController::class, 'reject'])->name('reject');
+        Route::post('/{swap}/cancel', [SwapController::class, 'cancel'])->name('cancel');
+        Route::post('/{swap}/complete', [SwapController::class, 'complete'])->name('complete');
     });
+    
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Route placeholder untuk fitur yang belum ada
+    Route::view('/conversations', 'conversations')->name('conversations');
+    Route::view('/favorites', 'favorites')->name('favorites');
+    Route::view('/settings', 'settings')->name('settings');
 });

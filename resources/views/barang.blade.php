@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | TukarYuk - Platform Tukar Barang</title>
+    <title>Barang Saya | TukarYuk - Platform Tukar Barang</title> <!-- Judul diperbaiki -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -173,39 +173,39 @@
         <nav class="p-4">
             <ul class="space-y-1">
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg active-nav">
-                        <i class="fas fa-home text-green-600 mr-3"></i>
+                    <a href="{{ route('dashboard') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <i class="fas fa-home text-gray-500 mr-3"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
-                        <i class="fas fa-box text-gray-500 mr-3"></i>
+                    <a href="{{ route('barang.index') }}" class="flex items-center p-3 rounded-lg active-nav">
+                        <i class="fas fa-box text-green-600 mr-3"></i>
                         <span class="font-medium">Barang Saya</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('swaps.index') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-exchange-alt text-gray-500 mr-3"></i>
                         <span class="font-medium">Penukaran</span>
                         <span class="ml-auto bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">{{ $stats['active_swaps'] ?? 0 }}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('conversations') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-comments text-gray-500 mr-3"></i>
                         <span class="font-medium">Percakapan</span>
                         <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">5</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-heart text-gray-500 mr-3"></i>
                         <span class="font-medium">Favorit</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('settings') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-cog text-gray-500 mr-3"></i>
                         <span class="font-medium">Pengaturan</span>
                     </a>
@@ -218,10 +218,10 @@
                     <i class="fas fa-plus mr-2"></i>
                     <span class="font-medium">Tambah Barang</span>
                 </button>
-                <button class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                <a href="{{ route('dashboard') }}" class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
                     <i class="fas fa-search mr-2"></i>
                     <span class="font-medium">Cari Barang</span>
-                </button>
+                </a>
             </div>
             
             <!-- Logout -->
@@ -277,39 +277,39 @@
             <nav class="flex-1 px-4 py-6">
                 <ul class="space-y-1">
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg active-nav">
-                            <i class="fas fa-home text-green-600 mr-3"></i>
+                        <a href="{{ route('dashboard') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-home text-gray-500 mr-3"></i>
                             <span class="font-medium">Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
-                            <i class="fas fa-box text-gray-500 mr-3"></i>
+                        <a href="{{ route('barang.index') }}" class="flex items-center p-3 rounded-lg active-nav">
+                            <i class="fas fa-box text-green-600 mr-3"></i>
                             <span class="font-medium">Barang Saya</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('swaps.index') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-exchange-alt text-gray-500 mr-3"></i>
                             <span class="font-medium">Penukaran</span>
                             <span class="ml-auto bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">{{ $stats['active_swaps'] ?? 0 }}</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('conversations') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-comments text-gray-500 mr-3"></i>
                             <span class="font-medium">Percakapan</span>
                             <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">5</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-heart text-gray-500 mr-3"></i>
                             <span class="font-medium">Favorit</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('settings') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-cog text-gray-500 mr-3"></i>
                             <span class="font-medium">Pengaturan</span>
                         </a>
@@ -323,10 +323,10 @@
                         <i class="fas fa-plus mr-2"></i>
                         <span class="font-medium">Tambah Barang</span>
                     </button>
-                    <button class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                    <a href="{{ route('dashboard') }}" class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
                         <i class="fas fa-search mr-2"></i>
                         <span class="font-medium">Cari Barang</span>
-                    </button>
+                    </a>
                 </div>
             </nav>
             
@@ -349,8 +349,8 @@
         <header class="hidden lg:block bg-white shadow-sm">
             <div class="flex justify-between items-center px-6 py-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Selamat datang, <span class="logo-text">{{ auth()->user()->name }}</span>!</h1>
-                    <p class="text-gray-600">Apa yang ingin Anda lakukan hari ini?</p>
+                    <h1 class="text-2xl font-bold text-gray-800">Barang Saya</h1> <!-- Judul header diperbaiki -->
+                    <p class="text-gray-600">Kelola barang yang Anda tawarkan untuk ditukar</p> <!-- Subjudul diperbaiki -->
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- Search -->
@@ -389,16 +389,16 @@
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 mb-6 card-shadow">
                 <div class="flex flex-col md:flex-row md:items-center justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-800 mb-2">Selamat datang di TukarYuk!</h2>
-                        <p class="text-gray-600 mb-4 md:mb-0">Mulai bertukar barang dengan komunitas kami. Jelajahi barang-barang menarik atau tambahkan barang Anda sendiri.</p>
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">Kelola Barang Anda</h2>
+                        <p class="text-gray-600 mb-4 md:mb-0">Lihat, edit, atau hapus barang yang Anda tawarkan untuk ditukar.</p>
                     </div>
                     <div class="flex space-x-3">
                         <button onclick="openAddItemModal()" class="btn-primary text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
                             <i class="fas fa-plus mr-2"></i>Tambah Barang
                         </button>
-                        <button class="bg-white text-green-700 border border-green-200 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition">
+                        <a href="{{ route('dashboard') }}" class="bg-white text-green-700 border border-green-200 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition flex items-center">
                             <i class="fas fa-search mr-2"></i>Cari Barang
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -442,12 +442,16 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-gray-500">{{ $item->created_at->diffForHumans() }}</span>
                                 <div class="flex space-x-2">
-                                    <button class="text-blue-600 hover:text-blue-800">
+                                    <a href="{{ route('barang.edit', $item->id) }}" class="text-blue-600 hover:text-blue-800">
                                         <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-600 hover:text-red-800">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    </a>
+                                    <form action="{{ route('barang.destroy', $item->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-800" onclick="return confirm('Apakah Anda yakin ingin menghapus barang ini?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>

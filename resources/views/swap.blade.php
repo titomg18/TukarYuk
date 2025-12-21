@@ -183,33 +183,33 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('barang.index') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-box text-gray-500 mr-3"></i>
                         <span class="font-medium">Barang Saya</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('swap.index') }}" class="flex items-center p-3 rounded-lg active-nav">
+                    <a href="{{ route('swaps.index') }}" class="flex items-center p-3 rounded-lg active-nav">
                         <i class="fas fa-exchange-alt text-green-600 mr-3"></i>
-                        <span class="font-medium">Swap System</span>
+                        <span class="font-medium">Penukaran</span>
                         <span class="ml-auto bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">{{ $incomingSwaps->where('status', 'pending')->count() }}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('conversations') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-comments text-gray-500 mr-3"></i>
                         <span class="font-medium">Percakapan</span>
                         <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">5</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-heart text-gray-500 mr-3"></i>
                         <span class="font-medium">Favorit</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('settings') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-cog text-gray-500 mr-3"></i>
                         <span class="font-medium">Pengaturan</span>
                     </a>
@@ -222,10 +222,10 @@
                     <i class="fas fa-plus mr-2"></i>
                     <span class="font-medium">Tambah Barang</span>
                 </button>
-                <button class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                <a href="{{ route('dashboard') }}" class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
                     <i class="fas fa-search mr-2"></i>
                     <span class="font-medium">Cari Barang</span>
-                </button>
+                </a>
             </div>
             
             <!-- Logout -->
@@ -287,33 +287,33 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('barang.index') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-box text-gray-500 mr-3"></i>
                             <span class="font-medium">Barang Saya</span>
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('swap.index') }}" class="flex items-center p-3 rounded-lg active-nav">
+                        <a href="{{ route('swaps.index') }}" class="flex items-center p-3 rounded-lg active-nav">
                             <i class="fas fa-exchange-alt text-green-600 mr-3"></i>
-                            <span class="font-medium">Swap System</span>
+                            <span class="font-medium">Penukaran</span>
                             <span class="ml-auto bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">{{ $incomingSwaps->where('status', 'pending')->count() }}</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('conversations') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-comments text-gray-500 mr-3"></i>
                             <span class="font-medium">Percakapan</span>
                             <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">5</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-heart text-gray-500 mr-3"></i>
                             <span class="font-medium">Favorit</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('settings') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-cog text-gray-500 mr-3"></i>
                             <span class="font-medium">Pengaturan</span>
                         </a>
@@ -327,10 +327,10 @@
                         <i class="fas fa-plus mr-2"></i>
                         <span class="font-medium">Tambah Barang</span>
                     </button>
-                    <button class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                    <a href="{{ route('dashboard') }}" class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
                         <i class="fas fa-search mr-2"></i>
                         <span class="font-medium">Cari Barang</span>
-                    </button>
+                    </a>
                 </div>
             </nav>
             
@@ -353,7 +353,7 @@
         <header class="hidden lg:block bg-white shadow-sm">
             <div class="flex justify-between items-center px-6 py-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Swap System</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">Penukaran</h1> <!-- Judul header diperbaiki -->
                     <p class="text-gray-600">Kelola penawaran tukar barang Anda</p>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -411,9 +411,9 @@
                         <button onclick="openAddItemModal()" class="btn-primary text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
                             <i class="fas fa-plus mr-2"></i>Tambah Barang
                         </button>
-                        <button class="bg-white text-green-700 border border-green-200 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition">
+                        <a href="{{ route('dashboard') }}" class="bg-white text-green-700 border border-green-200 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition flex items-center">
                             <i class="fas fa-search mr-2"></i>Cari Barang
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -511,13 +511,13 @@
                                         <!-- Action Buttons -->
                                         @if($swap->status == 'pending')
                                         <div class="flex space-x-2">
-                                            <form action="{{ route('swap.accept', $swap->id) }}" method="POST">
+                                            <form action="{{ route('swaps.accept', $swap->id) }}" method="POST"> <!-- Diperbaiki: route('swaps.accept') -->
                                                 @csrf
                                                 <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
                                                     <i class="fas fa-check mr-1"></i> Terima
                                                 </button>
                                             </form>
-                                            <form action="{{ route('swap.reject', $swap->id) }}" method="POST">
+                                            <form action="{{ route('swaps.reject', $swap->id) }}" method="POST"> <!-- Diperbaiki: route('swaps.reject') -->
                                                 @csrf
                                                 <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
                                                     <i class="fas fa-times mr-1"></i> Tolak
@@ -526,7 +526,7 @@
                                         </div>
                                         @elseif($swap->status == 'accepted')
                                         <div class="flex space-x-2">
-                                            <form action="{{ route('swap.complete', $swap->id) }}" method="POST">
+                                            <form action="{{ route('swaps.complete', $swap->id) }}" method="POST"> <!-- Diperbaiki: route('swaps.complete') -->
                                                 @csrf
                                                 <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
                                                     <i class="fas fa-check-double mr-1"></i> Tandai Selesai
@@ -613,7 +613,7 @@
                                         
                                         <!-- Action Buttons -->
                                         @if($swap->status == 'pending')
-                                        <form action="{{ route('swap.cancel', $swap->id) }}" method="POST">
+                                        <form action="{{ route('swaps.cancel', $swap->id) }}" method="POST"> <!-- Diperbaiki: route('swaps.cancel') -->
                                             @csrf
                                             <button type="submit" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
                                                 <i class="fas fa-times mr-1"></i> Batalkan
@@ -621,7 +621,7 @@
                                         </form>
                                         @elseif($swap->status == 'accepted')
                                         <div class="flex space-x-2">
-                                            <form action="{{ route('swap.complete', $swap->id) }}" method="POST">
+                                            <form action="{{ route('swaps.complete', $swap->id) }}" method="POST"> <!-- Diperbaiki: route('swaps.complete') -->
                                                 @csrf
                                                 <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
                                                     <i class="fas fa-check-double mr-1"></i> Tandai Selesai
@@ -644,9 +644,9 @@
                             </div>
                             <p class="text-gray-500 text-lg mb-2">Belum ada penawaran keluar</p>
                             <p class="text-gray-400 mb-4">Mulai ajukan penukaran dengan barang orang lain</p>
-                            <button class="text-green-600 hover:text-green-800 font-medium">
+                            <a href="{{ route('dashboard') }}" class="text-green-600 hover:text-green-800 font-medium">
                                 <i class="fas fa-search mr-1"></i> Jelajahi Barang
-                            </button>
+                            </a>
                         </div>
                         @endif
                     </div>
@@ -832,7 +832,7 @@
             
             <!-- Modal Form -->
             <div class="p-6">
-                <form method="POST" action="{{ route('items.store') }}" enctype="multipart/form-data" id="addItemForm">
+                <form method="POST" action="{{ route('barang.store') }}" enctype="multipart/form-data" id="addItemForm"> <!-- Diperbaiki: route('barang.store') -->
                     @csrf
                     
                     <!-- Title -->

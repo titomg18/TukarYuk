@@ -93,9 +93,20 @@
             z-index: 100;
         }
         
+        /* Line clamp for descriptions */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -192,20 +203,20 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('conversations') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-comments text-gray-500 mr-3"></i>
                         <span class="font-medium">Percakapan</span>
                         <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">5</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-heart text-gray-500 mr-3"></i>
                         <span class="font-medium">Favorit</span>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                    <a href="{{ route('settings') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                         <i class="fas fa-cog text-gray-500 mr-3"></i>
                         <span class="font-medium">Pengaturan</span>
                     </a>
@@ -218,10 +229,10 @@
                     <i class="fas fa-plus mr-2"></i>
                     <span class="font-medium">Tambah Barang</span>
                 </button>
-                <button class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                <a href="{{ route('dashboard') }}" class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
                     <i class="fas fa-search mr-2"></i>
                     <span class="font-medium">Cari Barang</span>
-                </button>
+                </a>
             </div>
             
             <!-- Logout -->
@@ -296,20 +307,20 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('conversations') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-comments text-gray-500 mr-3"></i>
                             <span class="font-medium">Percakapan</span>
                             <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">5</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-heart text-gray-500 mr-3"></i>
                             <span class="font-medium">Favorit</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <a href="{{ route('settings') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
                             <i class="fas fa-cog text-gray-500 mr-3"></i>
                             <span class="font-medium">Pengaturan</span>
                         </a>
@@ -323,10 +334,10 @@
                         <i class="fas fa-plus mr-2"></i>
                         <span class="font-medium">Tambah Barang</span>
                     </button>
-                    <button class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                    <a href="{{ route('dashboard') }}" class="w-full flex items-center justify-center p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
                         <i class="fas fa-search mr-2"></i>
                         <span class="font-medium">Cari Barang</span>
-                    </button>
+                    </a>
                 </div>
             </nav>
             
@@ -396,18 +407,18 @@
                         <button onclick="openAddItemModal()" class="btn-primary text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
                             <i class="fas fa-plus mr-2"></i>Tambah Barang
                         </button>
-                        <button class="bg-white text-green-700 border border-green-200 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition">
+                        <a href="{{ route('dashboard') }}" class="bg-white text-green-700 border border-green-200 font-medium py-2 px-4 rounded-lg hover:bg-green-50 transition flex items-center">
                             <i class="fas fa-search mr-2"></i>Cari Barang
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
             
             <!-- Filter Section -->
             <div class="bg-white rounded-xl card-shadow p-5 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 filter-grid">
                     <!-- Search -->
-                    <div class="col-span-2">
+                    <div class="md:col-span-2">
                         <div class="relative">
                             <input type="text" placeholder="Cari barang..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
@@ -440,55 +451,71 @@
             
             <!-- All Items Grid -->
             <div class="bg-white rounded-xl card-shadow p-5 mb-6">
-                <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-lg font-bold text-gray-800">Barang Tersedia</h2>
-                    <span class="text-sm text-gray-500">{{ $items->count() }} barang ditemukan</span>
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Barang Tersedia</h2>
+                        <p class="text-sm text-gray-500 mt-1">Temukan barang yang sesuai dengan keinginan Anda</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm font-medium text-gray-700">{{ $items->count() }} barang</span>
+                        <div class="relative">
+                            <select class="appearance-none bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full px-3 py-1.5 pr-8">
+                                <option value="newest">Terbaru</option>
+                                <option value="oldest">Terlama</option>
+                                <option value="popular">Populer</option>
+                                <option value="nearby">Terdekat</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 @if($items->count() > 0)
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     @foreach ($items as $item)
-                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition duration-300">
+                    <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                         <!-- Item Image -->
                         <div class="w-full h-48 overflow-hidden bg-gray-100 relative">
                             @if($item->images && $item->images->first())
                                 <img src="{{ asset('storage/' . $item->images->first()->image_path) }}" 
                                      alt="{{ $item->title }}"
-                                     class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                     class="w-full h-full object-cover hover:scale-105 transition duration-500">
                             @else
-                                <div class="w-full h-full flex items-center justify-center">
-                                    <i class="fas fa-box text-gray-400 text-3xl"></i>
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                    <i class="fas fa-box text-gray-400 text-4xl"></i>
                                 </div>
                             @endif
                             
                             <!-- Item Type Badge -->
                             <div class="absolute top-3 left-3">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full {{ $item->type == 'swap' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800' }}">
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full {{ $item->type == 'swap' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 'bg-green-100 text-green-800 border border-green-200' }}">
                                     {{ $item->type == 'swap' ? 'TUKAR' : 'GRATIS' }}
                                 </span>
                             </div>
                             
                             <!-- User Profile -->
                             <div class="absolute top-3 right-3">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow-md" title="{{ $item->user->name }}">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition" title="{{ $item->user->name }}">
                                     {{ substr($item->user->name, 0, 1) }}
                                 </div>
                             </div>
                         </div>
                         
                         <!-- Item Info -->
-                        <div class="p-4">
-                            <h3 class="font-bold text-gray-800 mb-2 truncate">{{ $item->title }}</h3>
+                        <div class="p-5">
+                            <h3 class="font-bold text-gray-800 mb-2 text-base truncate">{{ $item->title }}</h3>
                             
-                            <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ $item->description ?? 'Tidak ada deskripsi' }}</p>
+                            <p class="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[2.5rem]">{{ $item->description ?? 'Tidak ada deskripsi' }}</p>
                             
                             <!-- Item Details -->
                             <div class="flex flex-wrap gap-2 mb-4">
-                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">{{ $item->condition }}</span>
-                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">{{ $item->category }}</span>
+                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full border border-gray-200">{{ $item->condition }}</span>
+                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full border border-gray-200">{{ $item->category }}</span>
                                 @if($item->location)
-                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ $item->location }}
+                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full border border-gray-200 flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-1 text-xs"></i>{{ Str::limit($item->location, 15) }}
                                 </span>
                                 @endif
                             </div>
@@ -499,19 +526,19 @@
                                     <div class="w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold mr-2">
                                         {{ substr($item->user->name, 0, 1) }}
                                     </div>
-                                    <span class="text-xs text-gray-600">{{ $item->user->name }}</span>
+                                    <span class="text-xs font-medium text-gray-700 truncate max-w-[100px]">{{ $item->user->name }}</span>
                                 </div>
                                 <span class="text-xs text-gray-500">{{ $item->created_at->diffForHumans() }}</span>
                             </div>
                             
                             <!-- Action Button -->
                             @if($item->user_id == auth()->id())
-                                <a href="{{ route('barang.index') }}" class="block w-full py-2 bg-gray-100 text-gray-700 text-center rounded-lg hover:bg-gray-200 transition">
+                                <a href="{{ route('barang.index') }}" class="block w-full py-2.5 bg-gray-100 text-gray-700 text-center rounded-lg hover:bg-gray-200 transition font-medium">
                                     <i class="fas fa-box mr-2"></i>Barang Anda
                                 </a>
                             @else
                                 <a href="{{ route('swaps.create', $item->id) }}" 
-                                   class="block w-full py-2 bg-green-500 text-white text-center rounded-lg hover:bg-green-600 transition">
+                                   class="block w-full py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-center rounded-lg hover:from-green-600 hover:to-green-700 transition font-medium shadow-md hover:shadow-lg">
                                     <i class="fas fa-exchange-alt mr-2"></i>Ajukan Tukar
                                 </a>
                             @endif
@@ -522,89 +549,174 @@
                 
                 <!-- Pagination (if needed) -->
                 @if($items->hasPages())
-                <div class="mt-8">
-                    {{ $items->links() }}
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <div class="flex justify-center">
+                        {{ $items->links() }}
+                    </div>
                 </div>
                 @endif
                 
                 @else
                 <div class="text-center py-12">
-                    <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                         <i class="fas fa-search text-gray-400 text-3xl"></i>
                     </div>
                     <h3 class="text-lg font-bold text-gray-700 mb-2">Belum ada barang tersedia</h3>
-                    <p class="text-gray-500 mb-6">Tambahkan barang pertama Anda untuk mulai bertukar</p>
-                    <button onclick="openAddItemModal()" class="btn-primary text-white font-medium py-2 px-6 rounded-lg">
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Tambahkan barang pertama Anda untuk mulai bertukar atau tunggu pengguna lain menambahkan barang mereka</p>
+                    <button onclick="openAddItemModal()" class="btn-primary text-white font-medium py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg">
                         <i class="fas fa-plus mr-2"></i>Tambah Barang Pertama
                     </button>
                 </div>
                 @endif
             </div>
             
-            <!-- Stats Section -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4">
-                            <i class="fas fa-box text-green-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Total Barang Anda</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $stats['total_items'] ?? 0 }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center mr-4">
-                            <i class="fas fa-exchange-alt text-yellow-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Penukaran Aktif</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $stats['active_swaps'] ?? 0 }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4">
-                            <i class="fas fa-check-circle text-blue-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Swap Selesai</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $stats['completed_swaps'] ?? 0 }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-xl card-shadow p-6">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4">
-                            <i class="fas fa-box-open text-green-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">Barang Tersedia</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $stats['available_items'] ?? 0 }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- Footer -->
-            <div class="mt-6 pt-5 border-t border-gray-200 text-center text-sm text-gray-500">
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
                 <p>&copy; {{ date('Y') }} TukarYuk. Semua hak dilindungi. • 
-                   <a href="#" class="text-green-600 hover:text-green-800">Bantuan</a> • 
-                   <a href="#" class="text-green-600 hover:text-green-800">Kebijakan Privasi</a> • 
-                   <a href="#" class="text-green-600 hover:text-green-800">Syarat Layanan</a>
+                   <a href="#" class="text-green-600 hover:text-green-800 font-medium">Bantuan</a> • 
+                   <a href="#" class="text-green-600 hover:text-green-800 font-medium">Kebijakan Privasi</a> • 
+                   <a href="#" class="text-green-600 hover:text-green-800 font-medium">Syarat Layanan</a>
                 </p>
+                <p class="mt-2 text-xs">incs@gmail.com</p>
             </div>
         </main>
     </div>
     
-    <!-- Modal Tambah Barang (sama seperti sebelumnya) -->
-    <!-- ... kode modal tetap sama ... -->
+    <!-- Modal Tambah Barang -->
+    <div id="addItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-white w-full max-w-lg rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Tambah Barang Baru</h2>
+                        <p class="text-sm text-gray-600 mt-1">Lengkapi informasi barang Anda</p>
+                    </div>
+                    <button onclick="closeAddItemModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Form -->
+            <div class="p-6">
+                <form method="POST" action="{{ route('barang.store') }}" enctype="multipart/form-data" id="addItemForm">
+                    @csrf
+                    
+                    <!-- Title -->
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-heading text-green-500 mr-2"></i>Judul Barang
+                        </label>
+                        <input type="text" name="title" placeholder="Contoh: Headphone Bluetooth Sony"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            required>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-align-left text-green-500 mr-2"></i>Deskripsi
+                        </label>
+                        <textarea name="description" rows="3" placeholder="Deskripsikan barang Anda secara detail..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <!-- Category -->
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-tag text-green-500 mr-2"></i>Kategori
+                        </label>
+                        <select name="category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="elektronik">Elektronik</option>
+                            <option value="pakaian">Pakaian</option>
+                            <option value="buku">Buku & Alat Tulis</option>
+                            <option value="rumah_tangga">Rumah Tangga</option>
+                            <option value="olahraga">Olahraga</option>
+                            <option value="hobi">Hobi & Koleksi</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Condition -->
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-star text-green-500 mr-2"></i>Kondisi Barang
+                        </label>
+                        <select name="condition" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                            <option value="baru">Baru</option>
+                            <option value="bekas_layak">Bekas Layak</option>
+                        </select>
+                    </div>
+
+                    <!-- Type -->
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-exchange-alt text-green-500 mr-2"></i>Jenis Penawaran
+                        </label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <input type="radio" id="type_swap" name="type" value="swap" class="hidden peer" checked>
+                                <label for="type_swap" class="flex flex-col items-center p-4 border border-gray-300 rounded-lg cursor-pointer peer-checked:border-green-500 peer-checked:bg-green-50 transition">
+                                    <i class="fas fa-exchange-alt text-green-600 text-xl mb-2"></i>
+                                    <span class="font-medium">Tukar Barang</span>
+                                    <span class="text-xs text-gray-500 mt-1">Tukar dengan barang lain</span>
+                                </label>
+                            </div>
+                            <div>
+                                <input type="radio" id="type_free" name="type" value="free" class="hidden peer">
+                                <label for="type_free" class="flex flex-col items-center p-4 border border-gray-300 rounded-lg cursor-pointer peer-checked:border-green-500 peer-checked:bg-green-50 transition">
+                                    <i class="fas fa-gift text-green-600 text-xl mb-2"></i>
+                                    <span class="font-medium">Gratis</span>
+                                    <span class="text-xs text-gray-500 mt-1">Berikan secara gratis</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Photos -->
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-images text-green-500 mr-2"></i>Foto Barang
+                        </label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition">
+                            <i class="fas fa-cloud-upload-alt text-gray-400 text-3xl mb-3"></i>
+                            <p class="text-gray-600 mb-2">Drag & drop foto atau klik untuk memilih</p>
+                            <p class="text-sm text-gray-500">Maksimal 5 foto (JPEG, PNG, JPG)</p>
+                            <input type="file" name="photos[]" multiple accept="image/*" class="hidden" id="fileInput">
+                            <button type="button" onclick="document.getElementById('fileInput').click()" class="mt-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                                Pilih Foto
+                            </button>
+                        </div>
+                        <div id="fileList" class="mt-3 space-y-2"></div>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>Lokasi
+                        </label>
+                        <input type="text" name="location" value="{{ auth()->user()->location ?? '' }}" placeholder="Contoh: Jakarta Selatan"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan untuk menggunakan lokasi profil Anda</p>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button type="button" onclick="closeAddItemModal()"
+                            class="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex-1 px-6 py-3 btn-primary text-white font-medium rounded-lg focus:outline-none focus:shadow-outline">
+                            <i class="fas fa-save mr-2"></i>Simpan Barang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     
     <script>
         // Mobile menu functionality
@@ -759,4 +871,4 @@
         });
     </script>
 </body>
-</html>z
+</html>

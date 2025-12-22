@@ -612,24 +612,17 @@
                                         </span>
                                         
                                         <!-- Action Buttons -->
-                                        @if($swap->status == 'pending')
-                                        <form action="{{ route('swaps.cancel', $swap->id) }}" method="POST"> <!-- Diperbaiki: route('swaps.cancel') -->
-                                            @csrf
-                                            <button type="submit" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
-                                                <i class="fas fa-times mr-1"></i> Batalkan
-                                            </button>
-                                        </form>
-                                        @elseif($swap->status == 'accepted')
+                                        @if($swap->status == 'accepted')
                                         <div class="flex space-x-2">
-                                            <form action="{{ route('swaps.complete', $swap->id) }}" method="POST"> <!-- Diperbaiki: route('swaps.complete') -->
+                                            <form action="{{ route('swaps.complete', $swap->id) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
                                                     <i class="fas fa-check-double mr-1"></i> Tandai Selesai
                                                 </button>
                                             </form>
-                                            <button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                                            <a href="{{ route('chats.show', $swap->id) }}" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
                                                 <i class="fas fa-comment mr-1"></i> Chat
-                                            </button>
+                                            </a>
                                         </div>
                                         @endif
                                     </div>

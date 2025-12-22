@@ -44,5 +44,20 @@ class Swap extends Model
         return $this->belongsTo(User::class, 'owner_id');
     }
 
+    public function chats()
+{
+    return $this->hasMany(Chat::class);
+}
+
+public function latestChat()
+{
+    return $this->hasOne(Chat::class)->latest();
+}
+
+public function unreadChatsCount()
+{
+    return $this->chats()->where('receiver_id', auth()->id())->where('is_read', false)->count();
+}
+
     // ... method lainnya
 }

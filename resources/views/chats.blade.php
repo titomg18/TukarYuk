@@ -807,17 +807,19 @@
                     const message = messageInput.value.trim();
                     if (!message) return;
                     
-                    // Disable input and button
-                    messageInput.disabled = true;
-                    sendButton.disabled = true;
-                    sendButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
-                    
                     try {
                         const formData = new FormData(this);
+
+                        // Disable input and button after collecting form data
+                        messageInput.disabled = true;
+                        sendButton.disabled = true;
+                        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
                         const response = await fetch('{{ route("chats.store", $swap->id) }}', {
                             method: 'POST',
+                            credentials: 'same-origin',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'X-Requested-With': 'XMLHttpRequest',
                                 'Accept': 'application/json'
                             },
                             body: formData
@@ -846,8 +848,10 @@
                             // Mark as read
                             fetch('{{ route("chats.read", $swap->id) }}', {
                                 method: 'POST',
+                                credentials: 'same-origin',
                                 headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'X-Requested-With': 'XMLHttpRequest'
                                 }
                             });
                         }
@@ -890,6 +894,7 @@
         async function fetchNewMessages() {
             try {
                 const response = await fetch(window.location.href, {
+                    credentials: 'same-origin',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
@@ -923,7 +928,7 @@
         // Auto-refresh unread count every 30 seconds (for index mode)
         @if(!isset($swap))
         setInterval(() => {
-            fetch('{{ route("chats.unread.count") }}')
+            fetch('{{ route("chats.unread.count") }}', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(response => response.json())
                 .then(data => {
                     const unreadElements = document.querySelectorAll('.unread-count');
@@ -941,3 +946,122 @@
     </script>
 </body>
 </html>
+
+    <!-- Modal Tambah Barang (sama seperti di swap.blade.php) -->
+    <div id="addItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay">
+        <div class="bg-white w-full max-w-lg rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Tambah Barang Baru</h2>
+                        <p class="text-sm text-gray-600 mt-1">Lengkapi informasi barang Anda</p>
+                    </div>
+                    <button onclick="closeAddItemModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <form method="POST" action="{{ route('barang.store') }}" enctype="multipart/form-data" id="addItemForm">
+                    @csrf
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">Judul Barang</label>
+                        <input type="text" name="title" placeholder="Contoh: Headphone Bluetooth Sony" class="w-full px-4 py-3 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">Deskripsi</label>
+                        <textarea name="description" rows="3" placeholder="Deskripsikan barang Anda..." class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">Kategori</label>
+                        <select name="category" class="w-full px-4 py-3 border border-gray-300 rounded-lg" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="elektronik">Elektronik</option>
+                            <option value="pakaian">Pakaian</option>
+                            <option value="buku">Buku & Alat Tulis</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block text-gray-700 font-medium mb-2">Foto Barang</label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <input type="file" name="photos[]" multiple accept="image/*" class="hidden" id="fileInput">
+                            <button type="button" onclick="document.getElementById('fileInput').click()" class="mt-4 px-4 py-2 bg-gray-100 rounded-lg">Pilih Foto</button>
+                        </div>
+                        <div id="fileList" class="mt-3 space-y-2"></div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button type="button" onclick="closeAddItemModal()" class="flex-1 px-6 py-3 border border-gray-300 rounded-lg">Batal</button>
+                        <button type="submit" class="flex-1 px-6 py-3 btn-primary text-white rounded-lg"><i class="fas fa-save mr-2"></i>Simpan Barang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File input preview for modal on chats page
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    fileList.innerHTML = '';
+                    const files = Array.from(this.files).slice(0, 5);
+                    files.forEach((file, index) => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const fileItem = document.createElement('div');
+                            fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded-lg';
+                            fileItem.innerHTML = `
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded overflow-hidden mr-3">
+                                        <img src="${e.target.result}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium truncate max-w-[150px]">${file.name}</p>
+                                        <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                                    </div>
+                                </div>
+                                <button type="button" onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                            fileList.appendChild(fileItem);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                });
+            }
+        });
+
+        function removeFile(index) {
+            const fileInput = document.getElementById('fileInput');
+            const dt = new DataTransfer();
+            const files = Array.from(fileInput.files || []);
+            files.forEach((file, i) => { if (i !== index) dt.items.add(file); });
+            fileInput.files = dt.files;
+            const event = new Event('change');
+            fileInput.dispatchEvent(event);
+        }
+
+        function openAddItemModal() {
+            const modal = document.getElementById('addItemModal');
+            if (modal) { modal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
+        }
+
+        function closeAddItemModal() {
+            const modal = document.getElementById('addItemModal');
+            if (modal) { modal.classList.add('hidden'); document.body.style.overflow = ''; }
+            const form = document.getElementById('addItemForm'); if (form) form.reset();
+            const fileList = document.getElementById('fileList'); if (fileList) fileList.innerHTML = '';
+        }
+
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('addItemModal');
+            if (modal && e.target === modal) closeAddItemModal();
+        });
+    </script>

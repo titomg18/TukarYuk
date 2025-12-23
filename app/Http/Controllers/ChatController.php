@@ -7,6 +7,7 @@ use App\Models\Chat;
 use App\Models\Swap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ChatController extends Controller
 {
@@ -86,10 +87,12 @@ class ChatController extends Controller
     
     public function store(Request $request, $swapId)
     {
+        Log::info('ChatController@store called', ['swapId' => $swapId, 'user_id' => Auth::id(), 'input' => $request->all()]);
+
         $request->validate([
             'message' => 'required|string|max:1000',
         ]);
-        
+
         $swap = Swap::findOrFail($swapId);
         
         // Authorization
@@ -102,13 +105,22 @@ class ChatController extends Controller
             ? $swap->requester_id 
             : $swap->owner_id;
             
-        $chat = Chat::create([
-            'swap_id' => $swapId,
-            'sender_id' => Auth::id(),
-            'receiver_id' => $receiverId,
-            'message' => $request->message,
-            'is_read' => false,
-        ]);
+        try {
+            $chat = Chat::create([
+                'swap_id' => $swapId,
+                'sender_id' => Auth::id(),
+                'receiver_id' => $receiverId,
+                'message' => $request->message,
+                'is_read' => false,
+            ]);
+            Log::info('Chat created', ['chat_id' => $chat->id, 'swap_id' => $swapId, 'sender' => Auth::id(), 'receiver' => $receiverId]);
+        } catch (\Exception $e) {
+            Log::error('Chat create failed: ' . $e->getMessage(), ['swapId' => $swapId, 'user_id' => Auth::id(), 'input' => $request->all()]);
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json(['success' => false, 'error' => 'Server error while saving message'], 500);
+            }
+            return redirect()->route('chats.show', $swapId)->with('error', 'Gagal menyimpan pesan.');
+        }
         
         // Update updated_at timestamp di swap
         $swap->touch();

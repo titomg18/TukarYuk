@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | TukarYuk - Platform Tukar Barang</title>
+    <title>Favorit | TukarYuk - Platform Tukar Barang</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -101,6 +101,16 @@
             overflow: hidden;
         }
         
+        /* Heart animation for favorites */
+        .heart-animation {
+            animation: heartbeat 1.5s ease-in-out;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .content-grid {
@@ -185,8 +195,8 @@
         <nav class="p-4">
             <ul class="space-y-1">
                 <li>
-                    <a href="{{ route('dashboard') }}" class="flex items-center p-3 rounded-lg active-nav">
-                        <i class="fas fa-home text-green-600 mr-3"></i>
+                    <a href="{{ route('dashboard') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                        <i class="fas fa-home text-gray-500 mr-3"></i>
                         <span class="font-medium">Dashboard</span>
                     </a>
                 </li>
@@ -211,9 +221,10 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
-                        <i class="fas fa-heart text-gray-500 mr-3"></i>
+                    <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg active-nav">
+                        <i class="fas fa-heart text-red-500 mr-3"></i>
                         <span class="font-medium">Favorit</span>
+                        <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">{{ $favoriteItems->count() }}</span>
                     </a>
                 </li>
                 <li>
@@ -289,8 +300,8 @@
             <nav class="flex-1 px-4 py-6">
                 <ul class="space-y-1">
                     <li>
-                        <a href="{{ route('dashboard') }}" class="flex items-center p-3 rounded-lg active-nav">
-                            <i class="fas fa-home text-green-600 mr-3"></i>
+                        <a href="{{ route('dashboard') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-home text-gray-500 mr-3"></i>
                             <span class="font-medium">Dashboard</span>
                         </a>
                     </li>
@@ -315,9 +326,10 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition">
-                            <i class="fas fa-heart text-gray-500 mr-3"></i>
+                        <a href="{{ route('favorites') }}" class="flex items-center p-3 rounded-lg active-nav">
+                            <i class="fas fa-heart text-red-500 mr-3"></i>
                             <span class="font-medium">Favorit</span>
+                            <span class="ml-auto bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded-full">{{ $favoriteItems->count() }}</span>
                         </a>
                     </li>
                     <li>
@@ -361,13 +373,13 @@
         <header class="hidden lg:block bg-white shadow-sm">
             <div class="flex justify-between items-center px-6 py-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">Selamat datang, <span class="logo-text">{{ auth()->user()->name }}</span>!</h1>
-                    <p class="text-gray-600">Jelajahi barang-barang menarik untuk ditukar</p>
+                    <h1 class="text-2xl font-bold text-gray-800">Barang Favorit Anda</h1>
+                    <p class="text-gray-600">Semua barang yang telah Anda tandai sebagai favorit</p>
                 </div>
                 <div class="flex items-center space-x-4">
                     <!-- Search -->
                     <div class="relative hidden md:block">
-                        <input type="text" placeholder="Cari barang..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64">
+                        <input type="text" id="favoritesSearch" placeholder="Cari barang favorit..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent w-64">
                         <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                     </div>
                     
@@ -398,11 +410,16 @@
             @endif
 
             <!-- Welcome Section -->
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 mb-6 card-shadow">
+            <div class="bg-gradient-to-r from-red-50 to-pink-50 rounded-xl p-6 mb-6 card-shadow">
                 <div class="flex flex-col md:flex-row md:items-center justify-between">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-800 mb-2">Jelajahi Barang TukarYuk</h2>
-                        <p class="text-gray-600 mb-4 md:mb-0">Temukan barang menarik dari seluruh pengguna TukarYuk</p>
+                        <div class="flex items-center mb-2">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-red-400 to-pink-400 flex items-center justify-center mr-3">
+                                <i class="fas fa-heart text-white"></i>
+                            </div>
+                            <h2 class="text-xl font-bold text-gray-800">Barang Favorit</h2>
+                        </div>
+                        <p class="text-gray-600 mb-4 md:mb-0">Kelola barang-barang yang telah Anda tandai sebagai favorit untuk penukaran nanti</p>
                     </div>
                     <div class="flex space-x-3">
                         <button onclick="openAddItemModal()" class="btn-primary text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
@@ -421,14 +438,14 @@
                     <!-- Search -->
                     <div class="md:col-span-2">
                         <div class="relative">
-                            <input type="text" placeholder="Cari barang..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <input type="text" id="favoritesFilterSearch" placeholder="Cari barang favorit..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
                         </div>
                     </div>
                     
                     <!-- Category Filter -->
                     <div>
-                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <select id="favoritesCategoryFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
                             <option value="">Semua Kategori</option>
                             <option value="elektronik">Elektronik</option>
                             <option value="pakaian">Pakaian</option>
@@ -439,45 +456,41 @@
                         </select>
                     </div>
                     
-                    <!-- Type Filter -->
+                    <!-- Sort Filter -->
                     <div>
-                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">Semua Tipe</option>
-                            <option value="swap">Tukar Barang</option>
-                            <option value="free">Gratis</option>
+                        <select id="favoritesSortFilter" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="newest">Ditambahkan Terbaru</option>
+                            <option value="oldest">Ditambahkan Terlama</option>
+                            <option value="title_asc">Judul (A-Z)</option>
+                            <option value="title_desc">Judul (Z-A)</option>
                         </select>
                     </div>
                 </div>
             </div>
             
-            <!-- All Items Grid -->
+            <!-- Favorites Items Grid -->
             <div class="bg-white rounded-xl card-shadow p-5 mb-6">
                 <div class="flex justify-between items-center mb-6">
                     <div>
-                        <h2 class="text-xl font-bold text-gray-800">Barang Tersedia</h2>
-                        <p class="text-sm text-gray-500 mt-1">Temukan barang yang sesuai dengan keinginan Anda</p>
+                        <h2 class="text-xl font-bold text-gray-800">Barang Favorit Anda</h2>
+                        <p class="text-sm text-gray-500 mt-1">Total <span class="font-bold text-red-500">{{ $favoriteItems->count() }}</span> barang favorit</p>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="text-sm font-medium text-gray-700">{{ $items->count() }} barang</span>
-                        <div class="relative">
-                            <select class="appearance-none bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full px-3 py-1.5 pr-8">
-                                <option value="newest">Terbaru</option>
-                                <option value="oldest">Terlama</option>
-                                <option value="popular">Populer</option>
-                                <option value="nearby">Terdekat</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                                <i class="fas fa-chevron-down text-xs"></i>
-                            </div>
+                        <span id="favoritesCount" class="text-sm font-medium text-gray-700">{{ $favoriteItems->count() }} barang</span>
+                        <div class="flex items-center space-x-2">
+                            <button id="removeAllFavorites" class="text-sm text-red-500 hover:text-red-700 font-medium px-3 py-1.5 border border-red-200 rounded-lg hover:bg-red-50 transition">
+                                <i class="fas fa-trash-alt mr-1"></i>Hapus Semua
+                            </button>
                         </div>
                     </div>
                 </div>
                 
-                @if($items->count() > 0)
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    @foreach ($items as $item)
-                    <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                        <!-- Item Image -->
+                @if($favoriteItems->count() > 0)
+                <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @foreach ($favoriteItems as $favorite)
+                    @php $item = $favorite->item; @endphp
+                    <div class="border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 favorite-item" data-category="{{ $item->category }}" data-title="{{ strtolower($item->title) }}">
+                        <!-- Item Image with Favorite Button -->
                         <div class="w-full h-48 overflow-hidden bg-gray-100 relative">
                             @if($item->images && $item->images->first())
                                 <img src="{{ asset('storage/' . $item->images->first()->image_path) }}" 
@@ -496,28 +509,14 @@
                                 </span>
                             </div>
                             
-                            <!-- User Profile -->
-                            <div class="absolute top-3 right-3">
-                                <div class="w-8 h-8 rounded-full avatar-gradient flex items-center justify-center text-white text-sm font-bold shadow-md hover:shadow-lg transition" title="{{ $item->user->name }}">
-                                    {{ substr($item->user->name, 0, 1) }}
-                                </div>
-                            </div>
                             <!-- Favorite Button -->
-                            @if($item->user_id != auth()->id())
-                            <div class="absolute top-3 right-12">
-                                @php
-                                    $isFavorited = isset($userFavorites[$item->id]);
-                                    $favoriteId = $isFavorited ? $userFavorites[$item->id] : '';
-                                @endphp
-                                <button data-favorite-id="{{ $favoriteId }}" onclick="{{ $isFavorited ? "removeFavorite($favoriteId, $item->id, this)" : "addToFavorites($item->id, this)" }}" class="w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-red-50 hover:shadow-lg transition favorite-btn" title="Favorit">
-                                    @if($isFavorited)
-                                        <i class="fas fa-heart text-red-500 text-lg"></i>
-                                    @else
-                                        <i class="far fa-heart text-gray-400 text-lg"></i>
-                                    @endif
+                            <div class="absolute top-3 right-3">
+                                <button onclick="removeFromFavorites({{ $favorite->id }}, {{ $item->id }}, this)" 
+                                        class="w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-red-500 hover:bg-red-50 hover:shadow-lg transition heart-animation"
+                                        title="Hapus dari favorit">
+                                    <i class="fas fa-heart text-lg"></i>
                                 </button>
                             </div>
-                            @endif
                         </div>
                         
                         <!-- Item Info -->
@@ -569,26 +568,16 @@
                     </div>
                     @endforeach
                 </div>
-                
-                <!-- Pagination (if needed) -->
-                @if($items->hasPages())
-                <div class="mt-8 pt-6 border-t border-gray-200">
-                    <div class="flex justify-center">
-                        {{ $items->links() }}
-                    </div>
-                </div>
-                @endif
-                
                 @else
                 <div class="text-center py-12">
-                    <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-search text-gray-400 text-3xl"></i>
+                    <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-heart text-red-300 text-3xl"></i>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-700 mb-2">Belum ada barang tersedia</h3>
-                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Tambahkan barang pertama Anda untuk mulai bertukar atau tunggu pengguna lain menambahkan barang mereka</p>
-                    <button onclick="openAddItemModal()" class="btn-primary text-white font-medium py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg">
-                        <i class="fas fa-plus mr-2"></i>Tambah Barang Pertama
-                    </button>
+                    <h3 class="text-lg font-bold text-gray-700 mb-2">Belum ada barang favorit</h3>
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Tambahkan barang ke favorit Anda dengan menekan tombol hati pada barang yang Anda sukai</p>
+                    <a href="{{ route('dashboard') }}" class="btn-primary text-white font-medium py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg inline-flex items-center">
+                        <i class="fas fa-search mr-2"></i>Jelajahi Barang
+                    </a>
                 </div>
                 @endif
             </div>
@@ -897,6 +886,25 @@
                         reader.readAsDataURL(file);
                     });
                 });
+            }
+            
+            // Favorites search and filter functionality
+            const favoritesSearch = document.getElementById('favoritesFilterSearch');
+            const categoryFilter = document.getElementById('favoritesCategoryFilter');
+            const sortFilter = document.getElementById('favoritesSortFilter');
+            const favoritesGrid = document.getElementById('favoritesGrid');
+            const favoritesCount = document.getElementById('favoritesCount');
+            
+            if (favoritesSearch && favoritesGrid) {
+                favoritesSearch.addEventListener('input', filterFavorites);
+                categoryFilter.addEventListener('change', filterFavorites);
+                sortFilter.addEventListener('change', sortFavorites);
+            }
+            
+            // Remove all favorites button
+            const removeAllBtn = document.getElementById('removeAllFavorites');
+            if (removeAllBtn) {
+                removeAllBtn.addEventListener('click', removeAllFavorites);
             }
         });
         
@@ -1313,62 +1321,113 @@
             }
         });
         
-        // Add to favorites (AJAX) — toggles button to favorited state on success
-        async function addToFavorites(itemId, button) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const originalHTML = button.innerHTML;
-            try {
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                button.disabled = true;
-
-                const res = await fetch('/favorites', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ item_id: itemId })
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                    const favoriteId = data.favorite.id || data.favoriteId || null;
-
-                    // Update button to favorited state
-                    button.setAttribute('data-favorite-id', favoriteId);
-                    button.setAttribute('onclick', `removeFavorite(${favoriteId}, ${itemId}, this)`);
-                    const icon = button.querySelector('i');
-                    if (icon) {
-                        icon.className = 'fas fa-heart text-red-500 text-lg';
-                    }
-                    button.disabled = false;
-                } else {
-                    const data = await res.json().catch(() => ({}));
-                    alert(data.message || 'Gagal menambahkan favorit. Silakan coba lagi.');
-                    button.innerHTML = originalHTML;
-                    button.disabled = false;
+        // Favorites functionality
+        function filterFavorites() {
+            const searchTerm = document.getElementById('favoritesFilterSearch').value.toLowerCase();
+            const category = document.getElementById('favoritesCategoryFilter').value;
+            const items = document.querySelectorAll('.favorite-item');
+            let visibleCount = 0;
+            
+            items.forEach(item => {
+                const title = item.getAttribute('data-title');
+                const itemCategory = item.getAttribute('data-category');
+                let shouldShow = true;
+                
+                // Filter by search term
+                if (searchTerm && !title.includes(searchTerm)) {
+                    shouldShow = false;
                 }
-            } catch (err) {
-                console.error(err);
-                alert('Terjadi kesalahan jaringan. Silakan coba lagi.');
-                button.innerHTML = originalHTML;
-                button.disabled = false;
+                
+                // Filter by category
+                if (category && itemCategory !== category) {
+                    shouldShow = false;
+                }
+                
+                if (shouldShow) {
+                    item.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // Update count
+            document.getElementById('favoritesCount').textContent = `${visibleCount} barang`;
+            
+            // Show message if no items match
+            const favoritesGrid = document.getElementById('favoritesGrid');
+            if (visibleCount === 0 && items.length > 0) {
+                if (!document.getElementById('noResultsMessage')) {
+                    const noResults = document.createElement('div');
+                    noResults.id = 'noResultsMessage';
+                    noResults.className = 'col-span-full text-center py-12';
+                    noResults.innerHTML = `
+                        <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-search text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-700 mb-2">Tidak ditemukan barang favorit</h3>
+                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Coba ubah kata kunci atau filter kategori</p>
+                    `;
+                    favoritesGrid.appendChild(noResults);
+                }
+            } else {
+                const noResultsMsg = document.getElementById('noResultsMessage');
+                if (noResultsMsg) {
+                    noResultsMsg.remove();
+                }
             }
         }
-
-        // Remove favorite (AJAX) — toggles button to unfavorited state on success
-        async function removeFavorite(favoriteId, itemId, button) {
-            if (!favoriteId) return;
-            if (!confirm('Apakah Anda yakin ingin menghapus barang ini dari favorit?')) return;
-
+        
+        function sortFavorites() {
+            const sortBy = document.getElementById('favoritesSortFilter').value;
+            const favoritesGrid = document.getElementById('favoritesGrid');
+            const items = Array.from(document.querySelectorAll('.favorite-item'));
+            
+            items.sort((a, b) => {
+                const titleA = a.querySelector('h3').textContent.toLowerCase();
+                const titleB = b.querySelector('h3').textContent.toLowerCase();
+                
+                switch (sortBy) {
+                    case 'title_asc':
+                        return titleA.localeCompare(titleB);
+                    case 'title_desc':
+                        return titleB.localeCompare(titleA);
+                    case 'newest':
+                        // Assuming items are already in order by newest (from controller)
+                        return 0;
+                    case 'oldest':
+                        // Reverse the order for oldest
+                        return 0;
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Re-append items in sorted order
+            if (sortBy === 'oldest') {
+                items.reverse();
+            }
+            
+            items.forEach(item => {
+                favoritesGrid.appendChild(item);
+            });
+        }
+        
+        // Remove from favorites
+        async function removeFromFavorites(favoriteId, itemId, button) {
+            if (!confirm('Apakah Anda yakin ingin menghapus barang ini dari favorit?')) {
+                return;
+            }
+            
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const originalHTML = button.innerHTML;
+            const originalContent = button.innerHTML;
+            
+            // Show loading
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
             try {
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                button.disabled = true;
-
-                const res = await fetch(`/favorites/${favoriteId}`, {
+                const response = await fetch(`/favorites/${favoriteId}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -1376,26 +1435,124 @@
                         'Content-Type': 'application/json'
                     }
                 });
-
-                if (res.ok) {
-                    // Update button to unfavorited state
-                    button.removeAttribute('data-favorite-id');
-                    button.setAttribute('onclick', `addToFavorites(${itemId}, this)`);
-                    const icon = button.querySelector('i');
-                    if (icon) {
-                        icon.className = 'far fa-heart text-gray-400 text-lg';
-                    }
-                    button.disabled = false;
+                
+                if (response.ok) {
+                    // Remove item from DOM
+                    const itemElement = button.closest('.favorite-item');
+                    itemElement.style.opacity = '0.5';
+                    
+                    setTimeout(() => {
+                        itemElement.remove();
+                        
+                        // Update count
+                        const currentCount = parseInt(document.getElementById('favoritesCount').textContent);
+                        document.getElementById('favoritesCount').textContent = `${currentCount - 1} barang`;
+                        
+                        // Update sidebar count
+                        const sidebarCounts = document.querySelectorAll('.favorites-count');
+                        sidebarCounts.forEach(el => {
+                            el.textContent = currentCount - 1;
+                        });
+                        
+                        // Show success message
+                        alert('Barang berhasil dihapus dari favorit!');
+                        
+                        // If no items left, show empty state
+                        const remainingItems = document.querySelectorAll('.favorite-item');
+                        if (remainingItems.length === 0) {
+                            const favoritesGrid = document.getElementById('favoritesGrid');
+                            favoritesGrid.innerHTML = `
+                                <div class="col-span-full text-center py-12">
+                                    <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-heart text-red-300 text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-lg font-bold text-gray-700 mb-2">Belum ada barang favorit</h3>
+                                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Tambahkan barang ke favorit Anda dengan menekan tombol hati pada barang yang Anda sukai</p>
+                                    <a href="{{ route('dashboard') }}" class="btn-primary text-white font-medium py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg inline-flex items-center">
+                                        <i class="fas fa-search mr-2"></i>Jelajahi Barang
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    }, 300);
                 } else {
-                    const data = await res.json().catch(() => ({}));
-                    alert(data.message || 'Gagal menghapus favorit. Silakan coba lagi.');
-                    button.innerHTML = originalHTML;
-                    button.disabled = false;
+                    throw new Error('Gagal menghapus dari favorit');
                 }
-            } catch (err) {
-                console.error(err);
-                alert('Terjadi kesalahan jaringan. Silakan coba lagi.');
-                button.innerHTML = originalHTML;
+            } catch (error) {
+                console.error('Error removing favorite:', error);
+                alert('Gagal menghapus barang dari favorit. Silakan coba lagi.');
+                button.innerHTML = originalContent;
+                button.disabled = false;
+            }
+        }
+        
+        // Remove all favorites
+        async function removeAllFavorites() {
+            if (!confirm('Apakah Anda yakin ingin menghapus SEMUA barang dari favorit?')) {
+                return;
+            }
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const button = document.getElementById('removeAllFavorites');
+            const originalContent = button.innerHTML;
+            
+            // Show loading
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menghapus...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('/favorites/remove-all', {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    // Remove all items from DOM
+                    const items = document.querySelectorAll('.favorite-item');
+                    items.forEach(item => {
+                        item.style.opacity = '0.5';
+                        setTimeout(() => item.remove(), 100);
+                    });
+                    
+                    setTimeout(() => {
+                        // Update UI
+                        document.getElementById('favoritesCount').textContent = '0 barang';
+                        
+                        // Update sidebar count
+                        const sidebarCounts = document.querySelectorAll('.favorites-count');
+                        sidebarCounts.forEach(el => {
+                            el.textContent = '0';
+                        });
+                        
+                        // Show empty state
+                        const favoritesGrid = document.getElementById('favoritesGrid');
+                        favoritesGrid.innerHTML = `
+                            <div class="col-span-full text-center py-12">
+                                <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-heart text-red-300 text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-700 mb-2">Belum ada barang favorit</h3>
+                                <p class="text-gray-500 mb-6 max-w-md mx-auto">Tambahkan barang ke favorit Anda dengan menekan tombol hati pada barang yang Anda sukai</p>
+                                <a href="{{ route('dashboard') }}" class="btn-primary text-white font-medium py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg inline-flex items-center">
+                                    <i class="fas fa-search mr-2"></i>Jelajahi Barang
+                                </a>
+                            </div>
+                        `;
+                        
+                        alert('Semua barang favorit berhasil dihapus!');
+                    }, 500);
+                } else {
+                    throw new Error('Gagal menghapus semua favorit');
+                }
+            } catch (error) {
+                console.error('Error removing all favorites:', error);
+                alert('Gagal menghapus semua barang favorit. Silakan coba lagi.');
+            } finally {
+                button.innerHTML = originalContent;
                 button.disabled = false;
             }
         }

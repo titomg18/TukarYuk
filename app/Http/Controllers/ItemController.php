@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\ItemImage;
 use App\Models\Swap;
+use App\Models\Favorite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -33,7 +34,10 @@ class ItemController extends Controller
             ->where('status', 'pending')
             ->count();
 
-        return view('dashboard', compact('items', 'stats', 'incomingSwapsCount'));
+        // Ambil daftar favorit milik user saat ini (map item_id => favorite_id)
+        $userFavorites = Favorite::where('user_id', auth()->id())->pluck('id', 'item_id')->toArray();
+
+        return view('dashboard', compact('items', 'stats', 'incomingSwapsCount', 'userFavorites'));
     }
 
     // ====================
@@ -46,7 +50,14 @@ class ItemController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('barang', compact('items'));
+        $stats = [
+            'total_items' => Item::where('user_id', auth()->id())->count(),
+            'active_swaps' => Item::where('user_id', auth()->id())->where('status', 'in_swap')->count(),
+            'completed_swaps' => Item::where('user_id', auth()->id())->where('status', 'completed')->count(),
+            'available_items' => Item::where('user_id', auth()->id())->where('status', 'available')->count(),
+        ];
+
+        return view('barang', compact('items', 'stats'));
     }
 
     // ====================

@@ -106,8 +106,13 @@ Route::middleware('auth')->group(function () {
     // Update route placeholder conversations ke route yang sebenarnya
     Route::get('/conversations', [ChatController::class, 'index'])->name('conversations');
     
-    // Route placeholder untuk fitur yang belum ada
-    Route::view('/favorites', 'favorites')->name('favorites');
+    // Favorites routes
+    Route::get('/favorites', [\App\Http\Controllers\FavoritesController::class, 'index'])->name('favorites');
+    Route::post('/favorites', [\App\Http\Controllers\FavoritesController::class, 'store'])->name('favorites.store');
+    Route::delete('/favorites/{favorite}', [\App\Http\Controllers\FavoritesController::class, 'destroy'])->name('favorites.destroy');
+    Route::delete('/favorites/remove-all', [\App\Http\Controllers\FavoritesController::class, 'removeAll'])->name('favorites.removeAll');
+
+    // Placeholder views
     Route::view('/settings', 'settings')->name('settings');
     Route::view('/profile', 'profile')->name('profile');
 });

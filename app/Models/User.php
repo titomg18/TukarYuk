@@ -19,6 +19,8 @@ class User extends Authenticatable
         'email',
         'password',
         'location',
+        'phone',
+        'bio',
     ];
 
     /**
@@ -47,5 +49,15 @@ class User extends Authenticatable
     public function items()
     {
         return $this->hasMany(Item::class);
+    }
+
+    /**
+     * Get swaps where the user is either the requester or the owner.
+     * Returns a query builder so callers can add additional constraints.
+     */
+    public function swaps()
+    {
+        return Swap::where('requester_id', $this->id)
+            ->orWhere('owner_id', $this->id);
     }
 }

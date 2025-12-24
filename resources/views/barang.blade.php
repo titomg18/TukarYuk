@@ -404,6 +404,52 @@
                 </div>
             </div>
             
+            <!-- Filter Section -->
+            <div class="bg-white rounded-xl card-shadow p-5 mb-6">
+                <form id="filtersFormBarang" method="GET" action="{{ route('barang.index') }}">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                        <div class="md:col-span-2">
+                            <div class="relative">
+                                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari barang..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <select name="category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="">Semua Kategori</option>
+                                @if(isset($categories))
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $cat)) }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div>
+                            <select name="type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="">Semua Tipe</option>
+                                @if(isset($types))
+                                    @foreach($types as $t)
+                                        <option value="{{ $t }}" {{ request('type') == $t ? 'selected' : '' }}>{{ strtoupper($t) }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                </form>
+                <script>
+                    (function(){
+                        function debounce(fn, delay){ let t; return function(){ const args=arguments; const ctx=this; clearTimeout(t); t=setTimeout(function(){ fn.apply(ctx, args); }, delay); }; }
+                        const form = document.getElementById('filtersFormBarang');
+                        if (!form) return;
+                        const search = form.querySelector('input[name="q"]');
+                        const selects = form.querySelectorAll('select[name="category"], select[name="type"]');
+                        const submit = function(){ form.submit(); };
+                        if (search){ search.addEventListener('input', debounce(submit, 600)); }
+                        selects.forEach(function(s){ s.addEventListener('change', submit); });
+                    })();
+                </script>
+            </div>
+
             <!-- User's Items in Card Grid -->
             <div class="bg-white rounded-xl card-shadow p-5 mb-6">
                 <div class="flex justify-between items-center mb-5">

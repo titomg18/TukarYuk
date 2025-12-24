@@ -417,37 +417,60 @@
             
             <!-- Filter Section -->
             <div class="bg-white rounded-xl card-shadow p-5 mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 filter-grid">
-                    <!-- Search -->
-                    <div class="md:col-span-2">
-                        <div class="relative">
-                            <input type="text" placeholder="Cari barang..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                <form id="filtersForm" method="GET" action="{{ route('dashboard') }}">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 filter-grid">
+                        <!-- Search -->
+                        <div class="md:col-span-2">
+                            <div class="relative">
+                                <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari barang..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Category Filter -->
+                        <div>
+                            <select name="category" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="">Semua Kategori</option>
+                                @if(isset($categories))
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ ucfirst(str_replace('_', ' ', $cat)) }}</option>
+                                    @endforeach
+                                @else
+                                    <option value="elektronik" {{ request('category') == 'elektronik' ? 'selected' : '' }}>Elektronik</option>
+                                    <option value="pakaian" {{ request('category') == 'pakaian' ? 'selected' : '' }}>Pakaian</option>
+                                    <option value="buku" {{ request('category') == 'buku' ? 'selected' : '' }}>Buku & Alat Tulis</option>
+                                @endif
+                            </select>
+                        </div>
+                        
+                        <!-- Type Filter -->
+                        <div>
+                            <select name="type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="">Semua Tipe</option>
+                                @if(isset($types) && $types->count())
+                                    @foreach($types as $t)
+                                        <option value="{{ $t }}" {{ request('type') == $t ? 'selected' : '' }}>{{ strtoupper($t) }}</option>
+                                    @endforeach
+                                @else
+                                    <option value="swap" {{ request('type') == 'swap' ? 'selected' : '' }}>Tukar Barang</option>
+                                    <option value="free" {{ request('type') == 'free' ? 'selected' : '' }}>Gratis</option>
+                                @endif
+                            </select>
                         </div>
                     </div>
-                    
-                    <!-- Category Filter -->
-                    <div>
-                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">Semua Kategori</option>
-                            <option value="elektronik">Elektronik</option>
-                            <option value="pakaian">Pakaian</option>
-                            <option value="buku">Buku & Alat Tulis</option>
-                            <option value="rumah_tangga">Rumah Tangga</option>
-                            <option value="olahraga">Olahraga</option>
-                            <option value="hobi">Hobi & Koleksi</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Type Filter -->
-                    <div>
-                        <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">Semua Tipe</option>
-                            <option value="swap">Tukar Barang</option>
-                            <option value="free">Gratis</option>
-                        </select>
-                    </div>
-                </div>
+                </form>
+                <script>
+                    (function(){
+                        function debounce(fn, delay){ let t; return function(){ const args=arguments; const ctx=this; clearTimeout(t); t=setTimeout(function(){ fn.apply(ctx, args); }, delay); }; }
+                        const form = document.getElementById('filtersForm');
+                        if (!form) return;
+                        const search = form.querySelector('input[name="q"]');
+                        const selects = form.querySelectorAll('select[name="category"], select[name="type"]');
+                        const submit = function(){ form.submit(); };
+                        if (search){ search.addEventListener('input', debounce(submit, 600)); }
+                        selects.forEach(function(s){ s.addEventListener('change', submit); });
+                    })();
+                </script>
             </div>
             
             <!-- All Items Grid -->

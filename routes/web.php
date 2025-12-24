@@ -5,6 +5,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\SwapController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationsController;
+use App\Http\Controllers\PrivacyController;
+use App\Http\Controllers\AccountController;
 
 // Halaman utama
 Route::get('/', function () {
@@ -111,6 +115,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/favorites', [\App\Http\Controllers\FavoritesController::class, 'store'])->name('favorites.store');
     Route::delete('/favorites/{favorite}', [\App\Http\Controllers\FavoritesController::class, 'destroy'])->name('favorites.destroy');
     Route::delete('/favorites/remove-all', [\App\Http\Controllers\FavoritesController::class, 'removeAll'])->name('favorites.removeAll');
+
+    // Profile update (settings form posts here)
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Notifications update (settings form posts here)
+    Route::put('/notifications', [NotificationsController::class, 'update'])->name('notifications.update');
+    // Privacy update (settings form posts here)
+    Route::put('/privacy', [PrivacyController::class, 'update'])->name('privacy.update');
+    // Account delete (from settings delete account modal)
+    Route::delete('/account', [AccountController::class, 'destroy'])->name('account.delete');
 
     // Placeholder views
     Route::view('/settings', 'settings')->name('settings');

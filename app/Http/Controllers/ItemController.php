@@ -14,13 +14,32 @@ class ItemController extends Controller
     // ====================
     // DASHBOARD (Marketplace)
     // ====================
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        // Ambil semua barang yang available (bisa dilihat semua user)
-        $items = Item::where('status', 'available')
-            ->with(['images', 'user'])
-            ->latest()
-            ->paginate(12);
+        // Filtering params
+        $q = $request->query('q');
+        $category = $request->query('category');
+        $type = $request->query('type');
+
+        // Build query
+        $query = Item::where('status', 'available')->with(['images', 'user']);
+
+        if ($q) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        if ($category) {
+            $query->where('category', $category);
+        }
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        $items = $query->latest()->paginate(12)->appends($request->except('page'));
 
         $stats = [
             'total_items' => Item::where('user_id', auth()->id())->count(),
@@ -37,18 +56,40 @@ class ItemController extends Controller
         // Ambil daftar favorit milik user saat ini (map item_id => favorite_id)
         $userFavorites = Favorite::where('user_id', auth()->id())->pluck('id', 'item_id')->toArray();
 
-        return view('dashboard', compact('items', 'stats', 'incomingSwapsCount', 'userFavorites'));
+        // provide distinct categories and types for filter selects
+        $categories = Item::select('category')->distinct()->pluck('category');
+        $types = Item::select('type')->distinct()->pluck('type');
+
+        return view('dashboard', compact('items', 'stats', 'incomingSwapsCount', 'userFavorites', 'categories', 'types'));
     }
 
     // ====================
     // BARANG SAYA (My Items)
     // ====================
-    public function index()
+    public function index(Request $request)
     {
-        $items = Item::where('user_id', auth()->id())
-            ->with('images')
-            ->latest()
-            ->paginate(12);
+        $q = $request->query('q');
+        $category = $request->query('category');
+        $type = $request->query('type');
+
+        $query = Item::where('user_id', auth()->id())->with('images');
+
+        if ($q) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        if ($category) {
+            $query->where('category', $category);
+        }
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        $items = $query->latest()->paginate(12)->appends($request->except('page'));
 
         $stats = [
             'total_items' => Item::where('user_id', auth()->id())->count(),
@@ -57,7 +98,10 @@ class ItemController extends Controller
             'available_items' => Item::where('user_id', auth()->id())->where('status', 'available')->count(),
         ];
 
-        return view('barang', compact('items', 'stats'));
+        $categories = Item::select('category')->where('user_id', auth()->id())->distinct()->pluck('category');
+        $types = Item::select('type')->where('user_id', auth()->id())->distinct()->pluck('type');
+
+        return view('barang', compact('items', 'stats', 'categories', 'types'));
     }
 
     // ====================

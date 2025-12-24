@@ -6,6 +6,7 @@
     <title>Barang Saya | TukarYuk - Platform Tukar Barang</title> <!-- Judul diperbaiki -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -415,7 +416,7 @@
                 @if(isset($items) && count($items) > 0)
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     @foreach ($items as $item)
-                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
+                    <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition" data-item-id="{{ $item->id }}" data-title="{{ addslashes($item->title) }}" data-description="{{ addslashes($item->description ?? '') }}" data-category="{{ $item->category }}" data-condition="{{ $item->condition }}" data-type="{{ $item->type }}" data-status="{{ $item->status }}" data-location="{{ $item->location ?? '' }}">
                         <div class="w-full h-48 overflow-hidden bg-gray-100">
                             @if($item->images && $item->images->first())
                                 <img src="{{ asset('storage/' . $item->images->first()->image_path) }}" 
@@ -442,13 +443,13 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-gray-500">{{ $item->created_at->diffForHumans() }}</span>
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('barang.edit', $item->id) }}" class="text-blue-600 hover:text-blue-800">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('barang.destroy', $item->id) }}" method="POST" class="inline">
+                                        <button type="button" onclick="openEditModal({{ $item->id }}, this)" class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    <form action="{{ route('barang.destroy', $item->id) }}" method="POST" class="inline delete-item-form" data-item-id="{{ $item->id }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800" onclick="return confirm('Apakah Anda yakin ingin menghapus barang ini?')">
+                                        <button type="submit" class="text-red-600 hover:text-red-800 delete-item-button">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -745,6 +746,191 @@
                 mobileOverlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
+        });
+
+        // Edit modal functions
+        function openEditModal(itemId, btn) {
+            const card = document.querySelector(`[data-item-id='${itemId}']`);
+            if (!card) return alert('Data barang tidak ditemukan');
+
+            // Create modal if not exists
+            let modal = document.getElementById('editItemModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'editItemModal';
+                modal.className = 'hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-overlay';
+                modal.innerHTML = `
+                    <div class="bg-white w-full max-w-lg rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 border-b border-green-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800">Edit Barang</h2>
+                                    <p class="text-sm text-gray-600 mt-1">Perbarui informasi barang Anda</p>
+                                </div>
+                                <button type="button" onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times text-xl"></i></button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <form id="editItemForm">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="type" id="editType">
+                                <input type="hidden" name="status" id="editStatus">
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 font-medium mb-2">Judul</label>
+                                    <input type="text" name="title" id="editTitle" class="w-full px-4 py-3 border border-gray-300 rounded-lg" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 font-medium mb-2">Deskripsi</label>
+                                    <textarea name="description" id="editDescription" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-lg"></textarea>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-gray-700 font-medium mb-2">Kategori</label>
+                                        <input type="text" name="category" id="editCategory" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 font-medium mb-2">Kondisi</label>
+                                        <select name="condition" id="editCondition" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                            <option value="baru">Baru</option>
+                                            <option value="bekas_layak">Bekas Layak</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 font-medium mb-2">Lokasi</label>
+                                    <input type="text" name="location" id="editLocation" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                                </div>
+                                <div class="flex justify-end gap-3">
+                                    <button type="button" onclick="closeEditModal()" class="px-6 py-2 border rounded">Batal</button>
+                                    <button type="submit" class="px-6 py-2 btn-primary text-white rounded">Simpan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                // submit handler
+                document.getElementById('editItemForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const form = this;
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const original = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+                    submitBtn.disabled = true;
+
+                    const action = form.getAttribute('data-action');
+                    if (!action) return alert('Action URL tidak ditemukan');
+
+                    const formData = new FormData(form);
+                    // send as POST with _method=PUT for compatibility
+                    formData.append('_method', 'PUT');
+
+                    try {
+                        const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const res = await fetch(action, {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrf },
+                            body: formData
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json().catch(() => ({}));
+                            // Update card UI
+                            const itemId = form.getAttribute('data-item-id');
+                            const card = document.querySelector(`[data-item-id='${itemId}']`);
+                            if (card) {
+                                const titleEl = card.querySelector('h3') || card.querySelector('h4') || card.querySelector('.title');
+                                if (titleEl) titleEl.textContent = document.getElementById('editTitle').value;
+                                card.setAttribute('data-title', document.getElementById('editTitle').value);
+                                card.setAttribute('data-description', document.getElementById('editDescription').value);
+                                card.setAttribute('data-category', document.getElementById('editCategory').value);
+                                card.setAttribute('data-condition', document.getElementById('editCondition').value);
+                                card.setAttribute('data-location', document.getElementById('editLocation').value);
+                            }
+
+                            closeEditModal();
+                        } else {
+                            const err = await res.json().catch(() => ({}));
+                            alert(err.message || 'Gagal menyimpan perubahan');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Terjadi kesalahan jaringan. Silakan coba lagi.');
+                    } finally {
+                        submitBtn.innerHTML = original;
+                        submitBtn.disabled = false;
+                    }
+                });
+            }
+
+            // fill values
+            document.getElementById('editTitle').value = card.getAttribute('data-title') || '';
+            document.getElementById('editDescription').value = card.getAttribute('data-description') || '';
+            document.getElementById('editCategory').value = card.getAttribute('data-category') || '';
+            document.getElementById('editCondition').value = card.getAttribute('data-condition') || 'baru';
+            document.getElementById('editLocation').value = card.getAttribute('data-location') || '';
+            // set hidden type and status so server-side validation passes
+            const editTypeEl = document.getElementById('editType');
+            const editStatusEl = document.getElementById('editStatus');
+            if (editTypeEl) editTypeEl.value = card.getAttribute('data-type') || 'swap';
+            if (editStatusEl) editStatusEl.value = card.getAttribute('data-status') || 'available';
+
+            const editForm = document.getElementById('editItemForm');
+            editForm.setAttribute('data-action', `/barang/${itemId}`);
+            editForm.setAttribute('data-item-id', itemId);
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditModal() {
+            const modal = document.getElementById('editItemModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Delete via AJAX
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.delete-item-form').forEach(form => {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    if (!confirm('Apakah Anda yakin ingin menghapus barang ini?')) return;
+
+                    const itemId = this.getAttribute('data-item-id');
+                    const action = this.getAttribute('action');
+                    const submitBtn = this.querySelector('.delete-item-button');
+                    const original = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    submitBtn.disabled = true;
+
+                    try {
+                        const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const res = await fetch(action, {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrf },
+                            body: new URLSearchParams({ _method: 'DELETE' })
+                        });
+
+                        if (res.ok) {
+                            // remove card
+                            const card = document.querySelector(`[data-item-id='${itemId}']`);
+                            if (card) card.remove();
+                        } else {
+                            alert('Gagal menghapus barang. Silakan coba lagi.');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Terjadi kesalahan jaringan. Silakan coba lagi.');
+                    } finally {
+                        submitBtn.innerHTML = original;
+                        submitBtn.disabled = false;
+                    }
+                });
+            });
         });
     </script>
 </body>

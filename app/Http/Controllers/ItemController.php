@@ -143,7 +143,11 @@ class ItemController extends Controller
             'location' => 'nullable|string',
         ]);
 
-        $item->update($request->all());
+        $item->update($request->only(['title','description','category','condition','type','status','location']));
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['message' => 'Barang berhasil diperbarui', 'item' => $item], 200);
+        }
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil diperbarui!');
     }
@@ -165,6 +169,10 @@ class ItemController extends Controller
         }
 
         $item->delete();
+
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['message' => 'Barang berhasil dihapus'], 200);
+        }
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus!');
     }
